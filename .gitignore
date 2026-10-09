@@ -5,3 +5,8 @@ node_modules/
 __pycache__/
 .venv/
 dist/
+
+# 主办方材料和别场的 PDF 不进公开仓库
+resource/
+# 例外：密钥模板要进仓库
+!.env.example
