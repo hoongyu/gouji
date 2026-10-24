@@ -1,3 +1,3 @@
 # gouji
 
-参赛作品，对应赛事：Open Agent Hackathon 2026。提交前把这份 README 改写成给评委看的版本。
+A pre-payment investigator for accounts-payable teams, built for the Open Agent Hackathon 2026 (Track 2, The Agent That Can Explain Why). Work in progress; the full README lands before submission.

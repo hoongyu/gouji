@@ -1,0 +1,35 @@
+[project]
+name = "gouji"
+version = "0.1.0"
+description = "A pre-payment investigator: before an invoice is paid, it checks across the ERP, contracts, vendor master, registry and mailbox (queried in place) whether the supplier is who it claims to be, and a policy outside the model decides whether the money moves."
+readme = "README.md"
+license = "Apache-2.0"
+requires-python = ">=3.12"
+dependencies = [
+    "mandate-engine @ git+https://github.com/hoongyu/mandate-engine@v0.1.0",
+    "duckdb>=1.1",
+    "pytz>=2024.1",
+    "pydantic>=2.9",
+    "openai>=1.40",
+    "fastapi>=0.115",
+    "uvicorn>=0.30",
+]
+
+[project.optional-dependencies]
+zetaris = ["trino>=0.330"]
+
+[dependency-groups]
+dev = ["pytest>=8"]
+
+[build-system]
+requires = ["hatchling>=1.26"]
+build-backend = "hatchling.build"
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["gouji"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
