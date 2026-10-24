@@ -3,7 +3,7 @@ name = "gouji"
 version = "0.1.0"
 description = "A pre-payment investigator: before an invoice is paid, it checks across the ERP, contracts, vendor master, registry and mailbox (queried in place) whether the supplier is who it claims to be, and a policy outside the model decides whether the money moves."
 readme = "README.md"
-license = "Apache-2.0"
+license = "MIT"
 requires-python = ">=3.12"
 dependencies = [
     "mandate-engine @ git+https://github.com/hoongyu/mandate-engine@v0.1.0",

@@ -4,7 +4,7 @@
   "hackathon": "Open Agent Hackathon 2026",
   "track": "Track 2: The Agent That Can Explain Why",
   "team_size": 2,
-  "license": "Apache-2.0",
+  "license": "MIT",
   "entry_points": {
     "cli": "python run.py case INV-5567 | python run.py eval [--data data/heldout] [--live]",
     "http": "POST /run  {\"run_id\": \"...\", \"input\": {\"inv_id\": \"INV-5567\"}}",

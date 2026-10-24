@@ -204,4 +204,4 @@ Guard ──► Planner ──► Investigator ──► Verifier ──► Worl
 
 ## 许可证
 
-Apache-2.0
+MIT，见 [LICENSE](LICENSE)。依赖的 mandate-engine 是 Apache-2.0。

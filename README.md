@@ -204,4 +204,4 @@ Everything is fictional and generated: the buyer (Veltrona Drives GmbH), fourtee
 
 ## License
 
-Apache-2.0
+MIT. See [LICENSE](LICENSE). The mandate-engine dependency is Apache-2.0.
