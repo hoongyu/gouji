@@ -1,0 +1,2 @@
+# Data files are stored byte for byte so the SHA-256s in data/heldout/manifest.json hold on any checkout
+data/** -text
