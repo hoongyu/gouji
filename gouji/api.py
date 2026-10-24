@@ -55,7 +55,8 @@ def _state() -> tuple[Context, dict[str, Any]]:
     ctx = Context(harness=open_harness(DATA), store=WorldStoreService(LOGS / f"world-api-{run}.jsonl"),
                   mandate=build_mandate(meta["registry_accounts"], now, investigated=True),
                   executor=PaymentExecutor(key, AuditLog(LOGS / f"audit-api-{run}.jsonl")), key=key, now=now,
-                  planner=openai_generator("deepseek"), reporter=openai_generator("deepseek"))
+                  planner=openai_generator("deepseek"), reporter=openai_generator("deepseek"),
+                  guard=openai_generator("deepseek"))
     return ctx, meta
 
 

@@ -53,6 +53,7 @@ class Context:
     now: datetime
     planner: Generator | None = None
     reporter: Generator | None = None
+    guard: Generator | None = None
 
 
 def _number(findings: list[Finding], start: int) -> int:
@@ -72,7 +73,7 @@ def investigate(ctx: Context, inv_id: str, trace: Trace, *, bypass_probe: bool =
     trace.emit("Intake", "receive", f"payment request for {inv_id} from '{inv['issuer_name']}' "
                f"(EUR {inv['amount_minor'] / 100:,.2f})", inv_id=inv_id)
 
-    findings, intent = guard(h, inv_id, now)
+    findings, intent = guard(h, inv_id, now, ctx.guard)
     n = _number(findings, 0)
     trace.emit("Guard", "scan", f"intent={intent}; "
                + ("instructions aimed at the AI found and quarantined" if any(f.polarity == "red_flag" for f in findings)

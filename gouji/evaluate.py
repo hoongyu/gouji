@@ -28,7 +28,8 @@ def _eur(minor: int) -> str:
 
 
 def evaluate(data_dir: Path, logs_dir: Path, run_id: str, *, planner: Generator | None = None,
-             reporter: Generator | None = None, only: list[str] | None = None) -> dict[str, Any]:
+             reporter: Generator | None = None, guard: Generator | None = None,
+             only: list[str] | None = None) -> dict[str, Any]:
     meta = json.loads((data_dir / "cases.json").read_text(encoding="utf-8"))
     now = datetime.fromisoformat(meta["now"])
     cases = [c for c in meta["cases"] if not only or c["case_id"] in only or c["inv_id"] in only]
@@ -38,7 +39,7 @@ def evaluate(data_dir: Path, logs_dir: Path, run_id: str, *, planner: Generator 
     key = signing_key()
     ctx = Context(harness=h, store=WorldStoreService(logs_dir / f"world-{run_id}.jsonl"), mandate=b3_mandate,
                   executor=PaymentExecutor(key, AuditLog(logs_dir / f"audit-{run_id}.jsonl")), key=key, now=now,
-                  planner=planner, reporter=reporter)
+                  planner=planner, reporter=reporter, guard=guard)
     trace = Trace(logs_dir / f"trace-{run_id}.jsonl", run_id)
     rows = []
     results = {}
@@ -57,6 +58,7 @@ def evaluate(data_dir: Path, logs_dir: Path, run_id: str, *, planner: Generator 
     summary = _summarise(rows)
     return {"run_id": run_id, "backend": h.name, "now": meta["now"], "seed": meta["seed"],
             "planner": "model" if planner else "scripted", "reporter": "model" if reporter else "scripted",
+            "guard": "patterns + model screen" if guard else "patterns",
             "summary": summary, "cases": rows, "results": results}
 
 
@@ -96,6 +98,7 @@ def to_markdown(report: dict[str, Any]) -> str:
         f"# Evaluation {report['run_id']}",
         "",
         f"Backend: {report['backend']}. Planner: {report['planner']}. Reporter: {report['reporter']}. "
+        f"Guard: {report['guard']}. "
         f"Seed {report['seed']}, judged as of {report['now']}.",
         "",
         f"Cases: {s['cases']} ({s['normal']} normal, {s['attacks']} attacks; attack money {_eur(s['attack_money_minor'])}). "
