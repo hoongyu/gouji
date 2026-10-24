@@ -200,8 +200,8 @@ Everything is fictional and generated: the buyer (Veltrona Drives GmbH), fourtee
 
 ## Existing components
 
-[mandate-engine v0.1.0](https://github.com/hoongyu/mandate-engine) (Apache-2.0) evaluates the mandate and keeps the audit log. It was written before the development period and is declared as an existing component; everything else in this repository was built during the hackathon.
+[mandate-engine v0.1.1](https://github.com/hoongyu/mandate-engine) (MIT OR Apache-2.0) evaluates the mandate and keeps the audit log. It was written before the development period and is declared as an existing component; everything else in this repository was built during the hackathon.
 
 ## License
 
-MIT. See [LICENSE](LICENSE). The mandate-engine dependency is Apache-2.0.
+MIT. See [LICENSE](LICENSE). The mandate-engine dependency is dual-licensed MIT OR Apache-2.0.

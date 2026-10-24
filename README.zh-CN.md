@@ -200,8 +200,8 @@ Guard ──► Planner ──► Investigator ──► Verifier ──► Worl
 
 ## 已有组件
 
-[mandate-engine v0.1.0](https://github.com/hoongyu/mandate-engine)（Apache-2.0）负责评估授权书和记录审计日志。它写于开发期之前，已作为已有组件申报；本仓库其余部分都在黑客松期间完成。
+[mandate-engine v0.1.1](https://github.com/hoongyu/mandate-engine)（MIT 或 Apache-2.0 双许可）负责评估授权书和记录审计日志。它写于开发期之前，已作为已有组件申报；本仓库其余部分都在黑客松期间完成。
 
 ## 许可证
 
-MIT，见 [LICENSE](LICENSE)。依赖的 mandate-engine 是 Apache-2.0。
+MIT，见 [LICENSE](LICENSE)。依赖的 mandate-engine 是 MIT 或 Apache-2.0 双许可。

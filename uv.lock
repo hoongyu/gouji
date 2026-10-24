@@ -116,7 +116,7 @@ dev = [
 requires-dist = [
     { name = "duckdb", specifier = ">=1.1" },
     { name = "fastapi", specifier = ">=0.115" },
-    { name = "mandate-engine", git = "https://github.com/hoongyu/mandate-engine?rev=v0.1.0" },
+    { name = "mandate-engine", git = "https://github.com/hoongyu/mandate-engine?rev=v0.1.1" },
     { name = "openai", specifier = ">=1.40" },
     { name = "pydantic", specifier = ">=2.9" },
     { name = "pytz", specifier = ">=2024.1" },
@@ -320,8 +320,8 @@ wheels = [
 
 [[package]]
 name = "mandate-engine"
-version = "0.1.0"
-source = { git = "https://github.com/hoongyu/mandate-engine?rev=v0.1.0#9f4265b2def1f86c8647336d4682a49fab2a1757" }
+version = "0.1.1"
+source = { git = "https://github.com/hoongyu/mandate-engine?rev=v0.1.1#802a8a3d463960d3386e34c2b8d31ac1cb82cd3a" }
 dependencies = [
     { name = "pydantic" },
 ]

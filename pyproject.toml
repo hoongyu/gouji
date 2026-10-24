@@ -6,7 +6,7 @@ readme = "README.md"
 license = "MIT"
 requires-python = ">=3.12"
 dependencies = [
-    "mandate-engine @ git+https://github.com/hoongyu/mandate-engine@v0.1.0",
+    "mandate-engine @ git+https://github.com/hoongyu/mandate-engine@v0.1.1",
     "duckdb>=1.1",
     "pytz>=2024.1",
     "pydantic>=2.9",
