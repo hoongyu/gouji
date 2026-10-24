@@ -1,0 +1,11 @@
+{
+  "run_id": "example_3_legitimate_bank_change",
+  "input": {
+    "inv_id": "INV-5559",
+    "description": "A supplier changed banks; the change was confirmed by callback and recorded in the vendor master.",
+    "kind": "N2"
+  },
+  "options": {
+    "sample_mode": true
+  }
+}

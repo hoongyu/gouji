@@ -1,0 +1,59 @@
+{
+  "run_id": "example_2_price_inflation",
+  "status": "success",
+  "output": {
+    "summary": "ask: hold: ask the supplier to correct the invoice",
+    "decision": "ask",
+    "recommendations": [
+      "hold: ask the supplier to correct the invoice"
+    ],
+    "brief": "The unit price EUR 50.15 is 18.0% above contract C-102 (EUR 42.50), beyond the 2% tolerance. [F7]",
+    "grades": {
+      "identity": "verified",
+      "account": "verified",
+      "price": "estimated",
+      "receipt": "verified",
+      "duplicate": "verified",
+      "channel": "verified",
+      "injection": "verified"
+    },
+    "alerts": [],
+    "contract": null,
+    "artifacts": [
+      "/brief/INV-5579"
+    ]
+  },
+  "agents": [
+    {
+      "name": "Guard",
+      "role": "Scans untrusted text for instructions aimed at the AI before anything reads it"
+    },
+    {
+      "name": "Planner",
+      "role": "Chooses the checks and follow-ups; never decides payment"
+    },
+    {
+      "name": "Investigator",
+      "role": "Runs each check as federated SQL where the data lives (Zetaris or DuckDB)"
+    },
+    {
+      "name": "Verifier",
+      "role": "Re-reads every cited cell from its source; drops what does not match"
+    },
+    {
+      "name": "WorldModel",
+      "role": "Meterless World Model: resolves legal entities, raises doppelganger alerts"
+    },
+    {
+      "name": "Decider",
+      "role": "mandate-engine decides on graded evidence; only ALLOW gets an execution contract"
+    },
+    {
+      "name": "Reporter",
+      "role": "Writes the brief; sentences without verified citations are removed"
+    }
+  ],
+  "trace_id": "trace-example_2_price_inflation",
+  "log_file": "logs/trace-example_2_price_inflation.jsonl",
+  "execution_time_seconds": 0.1
+}

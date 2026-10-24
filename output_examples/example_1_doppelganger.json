@@ -1,0 +1,70 @@
+{
+  "run_id": "example_1_doppelganger",
+  "status": "success",
+  "output": {
+    "summary": "ask: hold: likely fraud, do not pay; call the supplier on the number on file",
+    "decision": "ask",
+    "recommendations": [
+      "hold: likely fraud, do not pay; call the supplier on the number on file"
+    ],
+    "brief": "The invoice notes contain instructions addressed to an AI reviewer. They are treated as data, never as evidence or instructions. [F1] The invoice is issued by LV-SYN-90501, but the contract for these goods (C-101) is with TW-SYN-48213 (TW). [F2] The purchase order PO-7767 is with V-101, registered as TW-SYN-48213; the invoice comes from LV-SYN-90501. [F3] The company registry lists 3 companies named 'Taivora Electronics Co., Ltd.': TW-SYN-48213 (TW), LV-SYN-90501 (LV), MT-SYN-90505 (MT). [F4] The issuer LV-SYN-90501 was incorporated 61 days ago. [F5] The account on the invoice is not the one the vendor master holds for V-101. [F6]",
+    "grades": {
+      "identity": "estimated",
+      "account": "estimated",
+      "price": "verified",
+      "receipt": "verified",
+      "duplicate": "verified",
+      "channel": "estimated",
+      "injection": "estimated"
+    },
+    "alerts": [
+      {
+        "kind": "doppelganger",
+        "aspect": "identity",
+        "message": "'Taivora Electronics Co., Ltd.' resolves to 3 legal entities. The contract is with TW-SYN-48213 (TW); this invoice is issued by LV-SYN-90501 (LV)."
+      },
+      {
+        "kind": "account_jurisdiction_mismatch",
+        "aspect": "account",
+        "message": "The paying account is in LV; the contracted entity TW-SYN-48213 is in TW."
+      }
+    ],
+    "contract": null,
+    "artifacts": [
+      "/brief/INV-5567"
+    ]
+  },
+  "agents": [
+    {
+      "name": "Guard",
+      "role": "Scans untrusted text for instructions aimed at the AI before anything reads it"
+    },
+    {
+      "name": "Planner",
+      "role": "Chooses the checks and follow-ups; never decides payment"
+    },
+    {
+      "name": "Investigator",
+      "role": "Runs each check as federated SQL where the data lives (Zetaris or DuckDB)"
+    },
+    {
+      "name": "Verifier",
+      "role": "Re-reads every cited cell from its source; drops what does not match"
+    },
+    {
+      "name": "WorldModel",
+      "role": "Meterless World Model: resolves legal entities, raises doppelganger alerts"
+    },
+    {
+      "name": "Decider",
+      "role": "mandate-engine decides on graded evidence; only ALLOW gets an execution contract"
+    },
+    {
+      "name": "Reporter",
+      "role": "Writes the brief; sentences without verified citations are removed"
+    }
+  ],
+  "trace_id": "trace-example_1_doppelganger",
+  "log_file": "logs/trace-example_1_doppelganger.jsonl",
+  "execution_time_seconds": 0.2
+}

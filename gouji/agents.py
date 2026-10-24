@@ -118,10 +118,12 @@ def write_brief(findings: list[Finding], decision: str, recommendation: str, gen
                    "findings": [{"id": f.fid, "polarity": f.polarity, "claim": f.claim} for f in verified]}
         try:
             text, dropped = filter_brief(gen(REPORTER_SYSTEM, json.dumps(payload, ensure_ascii=False)), valid)
-            if text:
-                return {"text": text, "dropped_sentences": dropped, "author": "model"}
         except Exception as exc:
-            return {**_template(lead), "author": f"scripted (model failed: {type(exc).__name__})"}
+            return {**_template(lead), "author": f"scripted (model failed: {type(exc).__name__}: {exc})"[:160]}
+        if text:
+            return {"text": text, "dropped_sentences": dropped, "author": "model"}
+        return {**_template(lead), "dropped_sentences": dropped,
+                "author": "scripted (no sentence of the model's brief survived citation checks)"}
     return {**_template(lead), "author": "scripted"}
 
 
