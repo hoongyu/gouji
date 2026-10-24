@@ -1,0 +1,23 @@
+# Local stand-ins for the buyer's systems on the Zetaris path. PostgreSQL holds the ERP and the vendor
+# master as two databases; MinIO (S3-compatible) holds the contracts, the mailbox and the registry as
+# files. Zetaris reaches both through host.docker.internal. Passwords come from .env in this folder,
+# which `python scripts/zetaris_sources.py up` generates and git ignores.
+services:
+  postgres:
+    image: postgres:16.4
+    environment:
+      POSTGRES_USER: gouji
+      POSTGRES_PASSWORD: ${GOUJI_PG_PASSWORD:?run scripts/zetaris_sources.py up}
+    ports: ["5433:5432"]
+    volumes: [pg:/var/lib/postgresql/data]
+  minio:
+    image: minio/minio:RELEASE.2024-12-18T13-15-44Z
+    command: server /data --console-address :9001
+    environment:
+      MINIO_ROOT_USER: gouji
+      MINIO_ROOT_PASSWORD: ${GOUJI_S3_PASSWORD:?run scripts/zetaris_sources.py up}
+    ports: ["9000:9000", "9001:9001"]
+    volumes: [s3:/data]
+volumes:
+  pg:
+  s3:

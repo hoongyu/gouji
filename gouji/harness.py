@@ -121,30 +121,38 @@ class ZetarisHarness(_SqlHarness):
     """
 
     def __init__(self) -> None:
-        base, key = os.environ.get("ZETARIS_REST_URL", "").rstrip("/"), os.environ.get("ZETARIS_API_KEY")
-        if not base or not key:
-            raise RuntimeError("Zetaris is not configured: set ZETARIS_REST_URL and ZETARIS_API_KEY, or use sample mode")
-        org = os.environ.get("ZETARIS_ORG_ID", "1")
-        timeout = float(os.environ.get("ZETARIS_TIMEOUT", "60"))
+        zetaris_config()  # fail early, with a clear message, when the instance is not configured
         names = dict(ZETARIS_TABLES)
         names.update(pair.split("=", 1) for pair in os.environ.get("ZETARIS_TABLES", "").split(",") if "=" in pair)
 
         def run(sql: str, params: Sequence[Any]) -> list[dict[str, Any]]:
             text = inline_params(sql, params)
-            body = json.dumps({"queryId": str(uuid.uuid4()), "sql": text, "source": "SqlEditor", "limit": 10000})
-            req = Request(f"{base}/sql-editor/sqls/run", data=body.encode(), method="POST", headers={
-                "Authorization": f"Bearer {key}", "X-Org-ID": org, "X-Request-ID": str(uuid.uuid4()),
-                "Content-Type": "application/json"})
-            try:
-                with urlopen(req, timeout=timeout) as resp:
-                    out = json.loads(resp.read().decode() or "null")
-            except HTTPError as exc:
-                raise RuntimeError(f"Zetaris HTTP {exc.code}: {exc.read().decode(errors='replace')[:300]}") from exc
-            except (URLError, OSError) as exc:
-                raise RuntimeError(f"cannot reach Zetaris at {base}: {getattr(exc, 'reason', exc)}") from exc
-            return rows_from_response(out, text)
+            return rows_from_response(zetaris_post(text), text)
 
         super().__init__(name="zetaris", table_names=names, run=run)
+
+
+def zetaris_config() -> tuple[str, str, str, float]:
+    base, key = os.environ.get("ZETARIS_REST_URL", "").rstrip("/"), os.environ.get("ZETARIS_API_KEY", "")
+    if not base or not key:
+        raise RuntimeError("Zetaris is not configured: set ZETARIS_REST_URL and ZETARIS_API_KEY, or use sample mode")
+    return base, key, os.environ.get("ZETARIS_ORG_ID", "1"), float(os.environ.get("ZETARIS_TIMEOUT", "60"))
+
+
+def zetaris_post(sql: str, limit: int = 10000) -> Any:
+    """Run one Lightning SQL statement through the Zetaris REST API and return the decoded response."""
+    base, key, org, timeout = zetaris_config()
+    body = json.dumps({"queryId": str(uuid.uuid4()), "sql": sql, "source": "SqlEditor", "limit": limit})
+    req = Request(f"{base}/sql-editor/sqls/run", data=body.encode(), method="POST", headers={
+        "Authorization": f"Bearer {key}", "X-Org-ID": org, "X-Request-ID": str(uuid.uuid4()),
+        "Content-Type": "application/json"})
+    try:
+        with urlopen(req, timeout=timeout) as resp:
+            return json.loads(resp.read().decode() or "null")
+    except HTTPError as exc:
+        raise RuntimeError(f"Zetaris HTTP {exc.code}: {exc.read().decode(errors='replace')[:300]}") from exc
+    except (URLError, OSError) as exc:
+        raise RuntimeError(f"cannot reach Zetaris at {base}: {getattr(exc, 'reason', exc)}") from exc
 
 
 def _literal(v: Any) -> str:
