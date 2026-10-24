@@ -10,3 +10,5 @@ dist/
 resource/
 # 例外：密钥模板要进仓库
 !.env.example
+
+logs/

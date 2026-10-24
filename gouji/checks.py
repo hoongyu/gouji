@@ -175,6 +175,10 @@ def c2_account(h: Harness, inv_id: str, now: datetime) -> list[Finding]:
         out.append(Finding("C2", "account", "red_flag",
                            f"The account is held in {country}, but the contracted supplier is in {r['jurisdiction']}.",
                            [inv_cite, Citation("contracts", r["contract_id"], "jurisdiction", r["jurisdiction"])]))
+    elif r["contract_id"] and country:
+        out.append(Finding("C2", "account", "support",
+                           f"The account is held in {country}, where the contracted supplier is registered.",
+                           [inv_cite, Citation("contracts", r["contract_id"], "jurisdiction", r["jurisdiction"])]))
     since = (now - timedelta(days=CHANGE_WINDOW_DAYS)).isoformat()
     changes = h.query(
         "SELECT change_id, vendor_id, field, new_value, requested_via, request_ref, callback_verified, changed_at "

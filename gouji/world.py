@@ -64,6 +64,14 @@ VENDORS: tuple[Vendor, ...] = (
            "ostreal.example", "Planetary gear stage PG-40", 15_400),
     Vendor("V-110", "Kelvaris Seals Kft.", "HU-SYN-82064", "HU", "HU00SYNB000000000000000110",
            "kelvaris.example", "Shaft seal kit", 990),
+    Vendor("V-111", "Ludmara Castings S.p.A.", "IT-SYN-64409", "IT", "IT00SYNB00000000000111",
+           "ludmara.example", "Aluminium end shield", 2_750),
+    Vendor("V-112", "Brenvik Plastics AS", "NO-SYN-19023", "NO", "NO00SYNB0000112",
+           "brenvik.example", "Cable gland M20", 310),
+    Vendor("V-113", "Varendt Wiring GmbH", "AT-SYN-53317", "AT", "AT00SYNB000000000113",
+           "varendt.example", "Wiring harness WH-12", 6_480),
+    Vendor("V-114", "Ixtora Tools S.A.S.", "FR-SYN-70826", "FR", "FR00SYNB0000000000000000114",
+           "ixtora.example", "Torque tool calibration", 12_900),
 )
 BY_ID = {v.vendor_id: v for v in VENDORS}
 
@@ -360,17 +368,17 @@ class _Builder:
 def build_dev_set(seed: int = SEED) -> _Builder:
     b = _Builder(seed)
     b.base()
-    t, k, a, p, q, bs, mc, ts, og, ks = VENDORS
+    t, k, a, p, q, bs, mc, ts, og, ks, lc, bp, vw, it = VENDORS
     for v in (t, k, a, p, t, k, a, p, t, k, a, p, k, a, p, t):  # 16 ordinary invoices
         b.n1(v)
     b.n2(q, "DE00SYNB00000000000205")
     b.n2(bs, "FI00SYNB0000000206")
     b.n2(mc, "ES00SYNB00000000000207")
     b.n2(ts, "SE00SYNB00000000000208")
-    b.n3(q, 6)
-    b.n3(bs, 4)
-    b.n3(mc, 5)
-    b.n3(ts, 3)
+    b.n3(lc, 6)
+    b.n3(bp, 4)
+    b.n3(vw, 5)
+    b.n3(it, 3)
     b.a1(t, in_registry=False, injection=INJECTIONS[0])  # the demo case
     b.a1(k, in_registry=False)
     b.a1(p, in_registry=False)
@@ -430,7 +438,7 @@ def generate(out: Path, seed: int = SEED) -> list[Case]:
     finally:
         con.close()
     for name in ("contracts", "registry"):
-        (out / f".{out.stem}.{name}.json").unlink(missing_ok=True)
+        (out.parent / f".{out.stem}.{name}.json").unlink(missing_ok=True)
     with (out / "mailbox.jsonl").open("w", encoding="utf-8") as f:
         for e in b.emails:
             f.write(json.dumps(e, ensure_ascii=False) + "\n")
