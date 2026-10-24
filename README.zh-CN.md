@@ -176,7 +176,7 @@ Guard ──► Planner ──► Investigator ──► Verifier ──► Worl
 
 ## 赞助商技术
 
-**Zetaris。** 五个系统原地不动：ERP 和供应商主数据是数据库，合同是 Parquet，邮箱是 JSONL，注册信息是 CSV。每项核查是一条跨系统关联的 ANSI SQL，Verifier 也通过同一个接口重新读取每个被引用的单元格。设置了 `ZETARIS_HOST` 时，所有查询都发给 Zetaris（`gouji/harness.py` 的 `ZetarisHarness`）；没有设置时，同样的 SQL 在 DuckDB 上对同样的文件执行。在 `.env` 里用 `ZETARIS_TABLES` 把逻辑表映射到你的 Zetaris catalog。
+**Zetaris。** 五个系统原地不动：ERP 和供应商主数据是数据库，合同是 Parquet，邮箱是 JSONL，注册信息是 CSV。每项核查是一条跨系统关联的 ANSI SQL，Verifier 也通过同一个接口重新读取每个被引用的单元格。设置了 `ZETARIS_REST_URL` 和 `ZETARIS_API_KEY` 时，所有查询都通过 Zetaris 的 REST API 发给它（`gouji/harness.py` 的 `ZetarisHarness`，不需要 Java 和 JDBC 驱动）；没有设置时，同样的 SQL 在 DuckDB 上对同样的文件执行。在 `.env` 里用 `ZETARIS_TABLES` 把逻辑表映射到你的 Zetaris catalog。
 
 **Meterless。** gouji 实现了 World Model 引擎的三个服务，沿用指南里的名字（`gouji/world_model.py`）。实体按注册号和法域识别，同名的两家公司就是两个实体，“冒名供应商”告警来自世界模型，而不是来自提示词。存储是只追加的 JSONL 日志，规范视图可以从中重建。所有模型调用都经过一个注入的 generator（`gouji/llm.py`），符合引擎指南的要求，所以 DeepSeek 换成 Nemotron 或任何兼容 OpenAI 接口的模型只是改配置。附加组件 `gouji/contract.py` 参照 Scout intent 的设计：下游系统在动手之前先验证一个签名对象。
 
@@ -196,7 +196,7 @@ Guard ──► Planner ──► Investigator ──► Verifier ──► Worl
 - 案例构成和数量是为一个虚构买方设计的，不是实地数据。这些数字说明核查在这些案例上能抓到什么，不代表诈骗发生率。
 - 守卫的模式匹配有意做得很窄。遇到没见过的文本时，它依赖模型复核，而模型复核也会出错。
 - gouji 负责拦下付款并说明原因，不负责联系供应商。按档案号码回拨仍然是人的步骤，本来也应该如此。
-- Zetaris 适配器通过 Trino 客户端发送标准 SQL；连接真实 Zetaris 实例还在等主办方开通权限。
+- Zetaris 适配器按官方文档的 REST API 编写，还没有对真实 Zetaris 实例跑过。
 
 ## 已有组件
 

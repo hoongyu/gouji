@@ -7,12 +7,17 @@ sources in place. Checks only ever see `query()` and `fetch()`, never a connecti
 
 from __future__ import annotations
 
+import json
 import os
+import re
 import time
+import uuid
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Protocol
+from urllib.error import HTTPError, URLError
+from urllib.request import Request, urlopen
 
 import duckdb
 
@@ -97,44 +102,141 @@ class LocalHarness(_SqlHarness):
         super().__init__(name="local-duckdb", table_names=names, run=run)
 
 
+# Where the nine tables live once registered in Zetaris: two databases (ERP, vendor master) and one store of
+# documents (contracts, mailbox, registry). Override any of them with ZETARIS_TABLES=logical=qualified,...
+ZETARIS_TABLES = {
+    "purchase_orders": "erp.purchase_orders", "goods_receipts": "erp.goods_receipts", "invoices": "erp.invoices",
+    "payments": "erp.payments", "vendors": "vendor_master.vendors", "vendor_changes": "vendor_master.vendor_changes",
+    "contracts": "documents.contracts", "mailbox": "documents.mailbox", "registry": "documents.registry",
+}
+
+
 class ZetarisHarness(_SqlHarness):
     """The same queries against a Zetaris instance that federates the five systems in place.
 
-    Configured from the environment: ZETARIS_HOST, ZETARIS_PORT, ZETARIS_USER, ZETARIS_PASSWORD,
-    ZETARIS_CATALOG, and ZETARIS_TABLES (comma-separated `logical=qualified.name` pairs).
+    Talks to the Zetaris REST API (POST {ZETARIS_REST_URL}/sql-editor/sqls/run with a bearer API key
+    and X-Org-ID), so no Java or JDBC driver is needed. Configured from the environment:
+    ZETARIS_REST_URL, ZETARIS_ORG_ID, ZETARIS_API_KEY, and optionally ZETARIS_TABLES. The API takes no bound parameters, so values are inlined as
+    escaped literals, and it returns every value as a string, so values are typed back here.
     """
 
     def __init__(self) -> None:
-        host = os.environ.get("ZETARIS_HOST")
-        if not host:
-            raise RuntimeError("Zetaris is not configured: set ZETARIS_HOST and friends, or use sample mode")
-        try:
-            import trino  # type: ignore[import-not-found]
-        except ImportError as exc:  # optional dependency
-            raise RuntimeError("install the 'zetaris' extra (trino client) to query Zetaris") from exc
-        conn = trino.dbapi.connect(
-            host=host, port=int(os.environ.get("ZETARIS_PORT", "443")),
-            user=os.environ.get("ZETARIS_USER", "gouji"),
-            catalog=os.environ.get("ZETARIS_CATALOG"), http_scheme="https",
-            auth=trino.auth.BasicAuthentication(os.environ.get("ZETARIS_USER", ""),
-                                                os.environ.get("ZETARIS_PASSWORD", "")),
-        )
-        names = dict(pair.split("=", 1) for pair in os.environ.get("ZETARIS_TABLES", "").split(",") if "=" in pair)
-        missing = sorted(set(TABLES) - set(names))
-        if missing:
-            raise RuntimeError(f"ZETARIS_TABLES is missing: {', '.join(missing)}")
+        base, key = os.environ.get("ZETARIS_REST_URL", "").rstrip("/"), os.environ.get("ZETARIS_API_KEY")
+        if not base or not key:
+            raise RuntimeError("Zetaris is not configured: set ZETARIS_REST_URL and ZETARIS_API_KEY, or use sample mode")
+        org = os.environ.get("ZETARIS_ORG_ID", "1")
+        timeout = float(os.environ.get("ZETARIS_TIMEOUT", "60"))
+        names = dict(ZETARIS_TABLES)
+        names.update(pair.split("=", 1) for pair in os.environ.get("ZETARIS_TABLES", "").split(",") if "=" in pair)
 
         def run(sql: str, params: Sequence[Any]) -> list[dict[str, Any]]:
-            cur = conn.cursor()
-            cur.execute(sql, list(params))
-            cols = [c[0] for c in cur.description]
-            return [dict(zip(cols, r)) for r in cur.fetchall()]
+            text = inline_params(sql, params)
+            body = json.dumps({"queryId": str(uuid.uuid4()), "sql": text, "source": "SqlEditor", "limit": 10000})
+            req = Request(f"{base}/sql-editor/sqls/run", data=body.encode(), method="POST", headers={
+                "Authorization": f"Bearer {key}", "X-Org-ID": org, "X-Request-ID": str(uuid.uuid4()),
+                "Content-Type": "application/json"})
+            try:
+                with urlopen(req, timeout=timeout) as resp:
+                    out = json.loads(resp.read().decode() or "null")
+            except HTTPError as exc:
+                raise RuntimeError(f"Zetaris HTTP {exc.code}: {exc.read().decode(errors='replace')[:300]}") from exc
+            except (URLError, OSError) as exc:
+                raise RuntimeError(f"cannot reach Zetaris at {base}: {getattr(exc, 'reason', exc)}") from exc
+            return rows_from_response(out, text)
 
         super().__init__(name="zetaris", table_names=names, run=run)
 
 
+def _literal(v: Any) -> str:
+    if v is None:
+        return "NULL"
+    if isinstance(v, bool):
+        return "TRUE" if v else "FALSE"
+    if isinstance(v, (int, float)):
+        return repr(v)
+    return "'" + str(v).replace("'", "''") + "'"
+
+
+def inline_params(sql: str, params: Sequence[Any]) -> str:
+    """Replace each ? outside quotes with an escaped literal, in order."""
+    out, it, quote = [], iter(params), None
+    for ch in sql:
+        if quote:
+            quote = None if ch == quote else quote
+            out.append(ch)
+        elif ch in "'\"":
+            quote = ch
+            out.append(ch)
+        elif ch == "?":
+            out.append(_literal(next(it)))
+        else:
+            out.append(ch)
+    return "".join(out)
+
+
+_NUMBER = re.compile(r"-?(0|[1-9][0-9]*)(\.[0-9]+)?([eE][-+]?[0-9]+)?")
+
+
+def _typed(v: Any) -> Any:
+    """REST returns strings: give numbers and booleans back their type, leave ids (even 0123) alone."""
+    if not isinstance(v, str):
+        return v
+    if v in ("true", "false"):
+        return v == "true"
+    if not _NUMBER.fullmatch(v):
+        return v
+    if "." not in v and "e" not in v.lower():
+        return int(v)
+    f = float(v)
+    return int(f) if f.is_integer() and "e" in v.lower() else f
+
+
+def _select_names(sql: str) -> list[str]:
+    """Column names from an explicit SELECT list (alias, or the part after the last dot)."""
+    head = sql.split(" FROM ", 1)[0].split("SELECT", 1)[-1]
+    parts, depth, cur = [], 0, ""
+    for ch in head:
+        depth += ch == "("
+        depth -= ch == ")"
+        if ch == "," and depth == 0:
+            parts.append(cur)
+            cur = ""
+        else:
+            cur += ch
+    parts.append(cur)
+    names = []
+    for part in parts:
+        part = part.strip()
+        alias = part.rsplit(" AS ", 1)[-1] if " AS " in part else part.split(".")[-1]
+        names.append(alias.strip().strip('"`'))
+    return names
+
+
+def rows_from_response(out: Any, sql: str) -> list[dict[str, Any]]:
+    data = out.get("data") if isinstance(out, dict) else out
+    if not data:
+        return []
+    if isinstance(data[0], dict):
+        return [{k: _typed(v) for k, v in row.items()} for row in data]
+    cols = None
+    for k in ("columns", "columnNames", "header", "headers", "schema", "fields"):
+        meta = out.get(k) if isinstance(out, dict) else None
+        if meta:
+            cols = [c.get("name") if isinstance(c, dict) else str(c) for c in meta]
+            break
+    if cols is None:
+        cols = _select_names(sql)
+        if "*" in cols:
+            raise RuntimeError("Zetaris returned no column names for a SELECT * query")
+    return [dict(zip(cols, (_typed(v) for v in row))) for row in data]
+
+
 def open_harness(data_dir: Path) -> _SqlHarness:
-    """Zetaris when it is configured, the local sample systems otherwise."""
-    if os.environ.get("ZETARIS_HOST") and os.environ.get("SAMPLE_MODE", "").lower() not in {"1", "true"}:
+    """GOUJI_BACKEND=local or zetaris picks one; auto (the default) uses Zetaris when it is configured and
+    sample mode is off, and the local sample systems otherwise."""
+    backend = os.environ.get("GOUJI_BACKEND", "auto").lower()
+    configured = bool(os.environ.get("ZETARIS_REST_URL") and os.environ.get("ZETARIS_API_KEY"))
+    sample = os.environ.get("SAMPLE_MODE", "").lower() in {"1", "true", "yes"}
+    if backend == "zetaris" or (backend == "auto" and configured and not sample):
         return ZetarisHarness()
     return LocalHarness(data_dir)

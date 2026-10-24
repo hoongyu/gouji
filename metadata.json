@@ -15,8 +15,8 @@
   "sponsor_tech": {
     "zetaris": {
       "where": "gouji/harness.py (ZetarisHarness), every check in gouji/checks.py",
-      "how": "The five systems (ERP, vendor master, contracts, AP mailbox, company registry) stay where they are; each check is one federated SQL query across them, and the Verifier re-reads every cited cell by primary key through the same harness. With ZETARIS_HOST set, all queries go to Zetaris; without it, the same SQL runs on DuckDB over the same files.",
-      "status": "Adapter implemented; the live Zetaris connection is pending access from the organisers."
+      "how": "The five systems (ERP, vendor master, contracts, AP mailbox, company registry) stay where they are; each check is one federated SQL query across them, and the Verifier re-reads every cited cell by primary key through the same harness. With ZETARIS_REST_URL and ZETARIS_API_KEY set, all queries go to Zetaris through its REST API; without it, the same SQL runs on DuckDB over the same files.",
+      "status": "REST adapter implemented; not yet run against a live Zetaris instance."
     },
     "meterless": {
       "engines": ["World Model"],

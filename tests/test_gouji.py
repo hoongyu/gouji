@@ -98,3 +98,11 @@ def test_investigated_mandate_holds_every_sample_attack_and_releases_every_norma
     assert s["b3"]["normal_interrupted"] == 0
     assert s["b1"]["attacks_auto_released"] > 0  # the baseline really misses some
     assert all(r["b3"] == "ask" for r in report["cases"] if r["is_attack"])
+
+
+def test_zetaris_rest_helpers():
+    from gouji.harness import inline_params, rows_from_response
+    assert inline_params("SELECT a FROM t WHERE b = ? AND c = '?' AND d = ?", ["O'Neil", 7]) ==         "SELECT a FROM t WHERE b = 'O''Neil' AND c = '?' AND d = 7"
+    rows = rows_from_response({"data": [["INV-1", "1250", "true", "0123", "2.50"]]},
+                              "SELECT i.inv_id, i.qty AS n, flag, code, price FROM t")
+    assert rows == [{"inv_id": "INV-1", "n": 1250, "flag": True, "code": "0123", "price": 2.5}]

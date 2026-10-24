@@ -15,8 +15,6 @@ dependencies = [
     "uvicorn>=0.30",
 ]
 
-[project.optional-dependencies]
-zetaris = ["trino>=0.330"]
 
 [dependency-groups]
 dev = ["pytest>=8", "httpx>=0.27"]

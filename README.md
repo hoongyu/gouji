@@ -176,7 +176,7 @@ Guard ──► Planner ──► Investigator ──► Verifier ──► Worl
 
 ## Sponsor technology
 
-**Zetaris.** The five systems stay where they are: the ERP and the vendor master as databases, the contracts as Parquet, the mailbox as JSONL, the registry as CSV. Each check is one ANSI SQL query that joins across them, and the Verifier re-reads every cited cell through the same interface. With `ZETARIS_HOST` set, every query goes to Zetaris (`gouji/harness.py`, `ZetarisHarness`); without it, the same SQL runs on DuckDB over the same files. Map the logical tables to your Zetaris catalog with `ZETARIS_TABLES` in `.env`.
+**Zetaris.** The five systems stay where they are: the ERP and the vendor master as databases, the contracts as Parquet, the mailbox as JSONL, the registry as CSV. Each check is one ANSI SQL query that joins across them, and the Verifier re-reads every cited cell through the same interface. With `ZETARIS_REST_URL` and `ZETARIS_API_KEY` set, every query goes to Zetaris through its REST API (`gouji/harness.py`, `ZetarisHarness`; no Java or JDBC driver needed); without them, the same SQL runs on DuckDB over the same files. Map the logical tables to your Zetaris catalog with `ZETARIS_TABLES` in `.env`.
 
 **Meterless.** gouji implements the World Model engine's three services, under the guide's names (`gouji/world_model.py`). Entities are keyed by registration number and jurisdiction, so two companies with one name are two entities, and the doppelganger alert comes from the World Model, not from a prompt. The store is an append-only JSONL log the canonical view can be rebuilt from. Every model call goes through one injected generator (`gouji/llm.py`), as the engine guides require, so DeepSeek can be swapped for Nemotron or any OpenAI-compatible model by configuration. A bonus component, `gouji/contract.py`, follows the Scout intent design: a signed object the downstream system verifies before it acts.
 
@@ -196,7 +196,7 @@ Everything is fictional and generated: the buyer (Veltrona Drives GmbH), fourtee
 - The case mix and volumes are design choices for a fictional buyer, not field data. The numbers show what the checks catch on these cases, not a fraud rate.
 - The Guard's pattern check is narrow by design. On text it has not seen it relies on the model screen, and a model screen can be wrong.
 - gouji holds a payment and explains why; it does not contact the supplier. The callback on the number on file stays a human step, as it should.
-- The Zetaris adapter speaks standard SQL through the Trino client; the connection to a live Zetaris instance is pending access from the organisers.
+- The Zetaris adapter is written against the documented REST API; it has not yet run against a live Zetaris instance.
 
 ## Existing components
 

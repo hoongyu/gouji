@@ -48,7 +48,11 @@ def main() -> None:
     ap.add_argument("--live", action="store_true")
     ap.add_argument("--data", default="data/sample")
     ap.add_argument("--tag", default=None, help="name for the eval report (default: sample or live)")
+    ap.add_argument("--backend", choices=["auto", "local", "zetaris"], default=None,
+                    help="where the checks run (default: $GOUJI_BACKEND, else auto)")
     args = ap.parse_args()
+    if args.backend:
+        os.environ["GOUJI_BACKEND"] = args.backend
     data = Path(args.data)
     run_id = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
     usage = Usage()

@@ -182,7 +182,7 @@ def c2_account(h: Harness, inv_id: str, now: datetime) -> list[Finding]:
     since = (now - timedelta(days=CHANGE_WINDOW_DAYS)).isoformat()
     changes = h.query(
         "SELECT change_id, vendor_id, field, new_value, requested_via, request_ref, callback_verified, changed_at "
-        "FROM {vendor_changes} WHERE vendor_id = ? AND field = 'account' AND CAST(changed_at AS VARCHAR) >= ? "
+        "FROM {vendor_changes} WHERE vendor_id = ? AND field = 'account' AND CAST(changed_at AS STRING) >= ? "
         "ORDER BY changed_at DESC",
         [r["vendor_id"], since],
     )
@@ -224,8 +224,8 @@ def c3_price(h: Harness, inv_id: str, now: datetime) -> list[Finding]:
         "FROM {invoices} i JOIN {purchase_orders} p ON p.po_id = i.po_ref "
         "JOIN {vendors} v ON v.vendor_id = p.vendor_id "
         "LEFT JOIN {contracts} c ON c.vendor_reg_no = v.reg_no AND c.item = p.item "
-        " AND CAST(c.valid_from AS VARCHAR) <= CAST(i.received_at AS VARCHAR) "
-        " AND CAST(c.valid_to AS VARCHAR) >= CAST(i.received_at AS VARCHAR) "
+        " AND CAST(c.valid_from AS STRING) <= CAST(i.received_at AS STRING) "
+        " AND CAST(c.valid_to AS STRING) >= CAST(i.received_at AS STRING) "
         "WHERE i.inv_id = ? ORDER BY c.valid_from DESC",
         [inv_id],
     )
@@ -279,7 +279,7 @@ def c5_duplicate(h: Harness, inv_id: str, now: datetime) -> list[Finding]:
     rows = h.query(
         "SELECT o.inv_id, o.amount_minor, o.po_ref, pay.pay_id, pay.paid_at "
         "FROM {invoices} o JOIN {payments} pay ON pay.inv_id = o.inv_id "
-        "WHERE o.inv_id <> ? AND (o.po_ref = ? OR starts_with(?, o.inv_id))",
+        "WHERE o.inv_id <> ? AND (o.po_ref = ? OR ? LIKE CONCAT(o.inv_id, '%'))",
         [inv_id, ctx["po_ref"], inv_id],
     )
     if not rows:
