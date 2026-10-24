@@ -75,7 +75,7 @@ def main() -> None:
     if args.command == "case" and not args.target:
         sys.exit("usage: python run.py case CASE-25")
     only = [args.target] if args.command == "case" else None
-    report = evaluate(data, LOGS, run_id, only=only, **gens)
+    report = evaluate(data, LOGS, run_id, only=only, echo=args.command == "case", **gens)
     report["usage"] = vars(usage)
     OUT.mkdir(exist_ok=True)
     if args.command == "case":

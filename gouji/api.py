@@ -67,7 +67,7 @@ def _investigate(inv_id: str, run_id: str) -> dict[str, Any]:
     ctx, _ = _state()
     if not ctx.harness.query("SELECT inv_id FROM {invoices} WHERE inv_id = ?", [inv_id]):
         raise HTTPException(404, f"no invoice {inv_id}")
-    result = investigate(ctx, inv_id, Trace(LOGS / f"trace-{run_id}.jsonl", run_id))
+    result = investigate(ctx, inv_id, Trace(LOGS / f"trace-{run_id}.jsonl", run_id, echo=True))
     _cache[inv_id] = result
     return result
 

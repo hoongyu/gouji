@@ -29,7 +29,7 @@ def _eur(minor: int) -> str:
 
 def evaluate(data_dir: Path, logs_dir: Path, run_id: str, *, planner: Generator | None = None,
              reporter: Generator | None = None, guard: Generator | None = None,
-             only: list[str] | None = None) -> dict[str, Any]:
+             only: list[str] | None = None, echo: bool = False) -> dict[str, Any]:
     meta = json.loads((data_dir / "cases.json").read_text(encoding="utf-8"))
     now = datetime.fromisoformat(meta["now"])
     cases = [c for c in meta["cases"] if not only or c["case_id"] in only or c["inv_id"] in only]
@@ -40,7 +40,7 @@ def evaluate(data_dir: Path, logs_dir: Path, run_id: str, *, planner: Generator 
     ctx = Context(harness=h, store=WorldStoreService(logs_dir / f"world-{run_id}.jsonl"), mandate=b3_mandate,
                   executor=PaymentExecutor(key, AuditLog(logs_dir / f"audit-{run_id}.jsonl")), key=key, now=now,
                   planner=planner, reporter=reporter, guard=guard)
-    trace = Trace(logs_dir / f"trace-{run_id}.jsonl", run_id)
+    trace = Trace(logs_dir / f"trace-{run_id}.jsonl", run_id, echo=echo)
     rows = []
     results = {}
     for c in cases:

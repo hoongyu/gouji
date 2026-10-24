@@ -1,0 +1,10 @@
+.env
+.env.*
+!.env.example
+.venv/
+.git/
+logs/
+resource/
+.hackertrip/
+**/__pycache__/
+.pytest_cache/

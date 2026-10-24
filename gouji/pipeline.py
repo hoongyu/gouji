@@ -30,6 +30,7 @@ FRAUD_ASPECTS = {"identity", "account", "channel", "duplicate", "injection"}
 class Trace:
     path: Path
     run_id: str
+    echo: bool = False  # also print each event to stdout (the API and single cases do; batch evaluation does not)
     events: list[dict[str, Any]] = field(default_factory=list)
 
     def __post_init__(self) -> None:
@@ -41,6 +42,8 @@ class Trace:
         self.events.append(ev)
         with self.path.open("a", encoding="utf-8") as f:
             f.write(json.dumps(ev, default=str, ensure_ascii=False) + "\n")
+        if self.echo:
+            print(f"[{self.run_id}] {agent:<12} {action:<12} {summary}", flush=True)
 
 
 @dataclass
