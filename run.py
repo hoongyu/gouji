@@ -1,6 +1,7 @@
 """gouji command line.
 
     python run.py generate                 write the five sample systems to data/sample
+    python run.py heldout                  have Nemotron write a sealed held-out set into data/heldout
     python run.py case CASE-25             investigate one request (by case or invoice id)
     python run.py eval                     B1 vs B3 on every case in --data (default data/sample)
     python run.py serve                    HTTP API on $PORT (default 8000): POST /run
@@ -42,7 +43,7 @@ def _gens(live: bool, usage: Usage) -> dict:
 def main() -> None:
     load_dotenv()
     ap = argparse.ArgumentParser()
-    ap.add_argument("command", choices=["generate", "case", "eval", "serve"])
+    ap.add_argument("command", choices=["generate", "heldout", "case", "eval", "serve"])
     ap.add_argument("target", nargs="?")
     ap.add_argument("--live", action="store_true")
     ap.add_argument("--data", default="data/sample")
@@ -56,6 +57,13 @@ def main() -> None:
         from gouji.world import generate
         cases = generate(data)
         print(f"wrote {len(cases)} cases to {data}")
+        return
+    if args.command == "heldout":
+        from gouji.redteam import make_heldout
+        out = Path(args.data if args.data != "data/sample" else "data/heldout")
+        m = make_heldout(out, usage)
+        print(f"wrote {m['cases']} cases ({m['attacks']} attacks) to {out}; text by {m['text_by']['model']}, "
+              f"{usage.calls} calls; manifest {out / 'manifest.json'} (contents not printed)")
         return
     if args.command == "serve":
         import uvicorn

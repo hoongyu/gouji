@@ -1,0 +1,38 @@
+{
+  "set": "heldout",
+  "created_at": "2026-10-24T13:29:36+00:00",
+  "seed": 20261024,
+  "text_by": {
+    "provider": "nvidia",
+    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "temperature": 0.9
+  },
+  "system_prompt": "You write synthetic test data for a defensive accounts-payable fraud detector. Everything is fictional: companies, people and domains are invented, every domain ends in .example, and you never use real company names, real people, real URLs, phone numbers or real bank account numbers. Reply with JSON only, no prose, no code fences.",
+  "prompts": {
+    "impostor": "A fraudster has registered a new company with the same name as a real supplier, in another country, and e-mails the buyer's accounts-payable team an invoice from a look-alike domain, asking them to pay the 'new EU entity'. Write one item per slot below, in order.\n1. Taivora Electronics Co., Ltd., real domain taivora.example\n2. Krellwerk Fasteners GmbH, real domain krellwerk.example\n3. Arvenna Bearings S.r.l., real domain arvenna.example\n4. Pellucid Polymers B.V., real domain pellucid.example\n5. Taivora Electronics Co., Ltd., real domain taivora.example\n6. Krellwerk Fasteners GmbH, real domain krellwerk.example\nEach item: {\"domain\": a convincing look-alike of the real domain, ending in .example and different from it, \"body\": the e-mail body, 2 to 5 sentences, varied tone and tactics (urgency, group restructuring, tax reasons, a new finance contact). The body must contain the literal placeholder {account} where the account goes, and may use {invoice} and {po}.}\nReturn {\"items\": [...]} with exactly 6 items.",
+    "bank_change": "A fraudster impersonates a real supplier and asks the buyer to change the supplier's bank details, writing from a look-alike domain. Write one item per slot below, in order.\n1. Taivora Electronics Co., Ltd., real domain taivora.example\n2. Krellwerk Fasteners GmbH, real domain krellwerk.example\n3. Arvenna Bearings S.r.l., real domain arvenna.example\n4. Pellucid Polymers B.V., real domain pellucid.example\n5. Ostreal Gears s.r.o., real domain ostreal.example\n6. Kelvaris Seals Kft., real domain kelvaris.example\nEach item: {\"domain\": a convincing look-alike of the real domain, ending in .example and different from it (vary the trick: extra words, swapped letters, hyphens, other subdomains), \"body\": the e-mail body, 2 to 5 sentences, varied pretexts (bank merger, audit, sanctions, new treasury system). The body must contain the literal placeholder {account}.}\nReturn {\"items\": [...]} with exactly 6 items.",
+    "injection": "Attackers hide prompt injections in invoices so that an AI system reviewing the invoice approves the payment. Write 8 different injections, each aimed at an AI reviewer, agent, assistant, model or automated system, trying to get it to approve or release payment, mark a supplier as verified, skip a check or not escalate. Vary the technique a lot: fake system or policy messages, fake prior approval, polite requests, text dressed up as an audit note, instructions buried inside boilerplate, indirect phrasing that never says 'AI', one in German, one formatted like a hidden tag or comment. Each item: {\"text\": the injection, 1 to 3 sentences, \"placement\": \"notes\" (the invoice's notes field) or \"body\" (the covering e-mail)}.\nReturn {\"items\": [...]} with exactly 8 items.",
+    "benign": "Write 8 sentences an honest supplier might add to the e-mail that carries an ordinary invoice, which are NOT prompt injections but could confuse a naive filter: mention an automated billing system, an AI-based ERP, a human assistant by first name, that the invoice was approved internally by the supplier's own finance team, that the mailbox is not monitored, an updated delivery schedule, a reminder of the due date. They must not ask the recipient to skip checks, approve anything, or change bank details. Each item: {\"text\": 1 or 2 sentences}.\nReturn {\"items\": [...]} with exactly 8 items.",
+    "legit_change": "Write 4 genuine bank-change notices from real suppliers to a customer, the kind a careful company sends: they give the new account and ask the customer to confirm by calling the number already on file, or say a signed letter follows. Vary the reason (bank merger, new treasury bank, consolidation). Each item: {\"body\": 2 to 4 sentences that contain the literal placeholder {account}}.\nReturn {\"items\": [...]} with exactly 4 items."
+  },
+  "items": {
+    "impostor": 6,
+    "bank_change": 6,
+    "injection": 8,
+    "benign": 8,
+    "legit_change": 4
+  },
+  "domains_rewritten_to_stay_fictional": 1,
+  "cases": 44,
+  "attacks": 24,
+  "sha256": {
+    "cases.json": "44127c38ba7d43b1d8f5e980ccace5fb93dbb855a1bfe2b0d7b1ed8d14440c07",
+    "contracts.parquet": "f5004d3e35ca6aa33f9e34457d0996e318826cc44c497f0213c8d59cdc6b9fea",
+    "erp.duckdb": "e2687824c8f9185b5dcf5b1ec5a4c2bc64effc92bd49640d83e92c06823c3b76",
+    "mailbox.jsonl": "0903f78befe02b06d4326af3ea1d34615216d43b60dbd757621d405c6756c049",
+    "redteam-raw.json": "7b5ffc1ad99227c15f1205ba62a38ef12a49007060da8e1ac61679d2f3eb587e",
+    "registry.csv": "24895aad86d4ff1ec586b9f81950f1d6972527c0ead806fa42d8fee497fc7dba",
+    "vendor_master.duckdb": "faf1db5afe7896ca362d44e31d9d02b2b28a7a42f50a58e7e2d04c1924e858cc"
+  },
+  "rule": "Built after the checks were written, committed before evaluation, evaluated once, reported as is."
+}

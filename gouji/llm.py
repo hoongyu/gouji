@@ -50,7 +50,7 @@ class Usage:
 
 
 def openai_generator(provider: str, model: str | None = None, usage: Usage | None = None,
-                     timeout: float = 120.0, max_tokens: int = 3000) -> Generator | None:
+                     timeout: float = 120.0, max_tokens: int = 3000, temperature: float = 0.2) -> Generator | None:
     """deepseek-flash reasons before it answers and the reasoning counts against max_tokens, so the
     budget is generous; an empty answer raises instead of passing silently."""
     base_url, key_env, default_model = PROVIDERS[provider]
@@ -65,7 +65,7 @@ def openai_generator(provider: str, model: str | None = None, usage: Usage | Non
     def generate(system: str, prompt: str) -> str:
         extra = {"chat_template_kwargs": {"enable_thinking": False}} if provider == "nvidia" else None
         resp = client.chat.completions.create(
-            model=name, temperature=0.2, max_tokens=max_tokens,
+            model=name, temperature=temperature, max_tokens=max_tokens,
             messages=[{"role": "system", "content": system}, {"role": "user", "content": prompt}],
             extra_body=extra,
         )
