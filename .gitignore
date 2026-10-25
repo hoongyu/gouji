@@ -12,3 +12,6 @@ resource/
 !.env.example
 
 logs/
+
+# local tool settings
+.claude/

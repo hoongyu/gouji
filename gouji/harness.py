@@ -80,6 +80,7 @@ class LocalHarness(_SqlHarness):
 
     def __init__(self, data_dir: Path) -> None:
         con = duckdb.connect()
+        con.execute("SET TimeZone = 'UTC'")  # every case is judged in UTC; show times the same way
         d = data_dir.resolve().as_posix()
         con.execute(f"ATTACH '{d}/erp.duckdb' AS erp (READ_ONLY)")
         con.execute(f"ATTACH '{d}/vendor_master.duckdb' AS vm (READ_ONLY)")

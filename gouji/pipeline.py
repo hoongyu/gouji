@@ -95,7 +95,7 @@ def investigate(ctx: Context, inv_id: str, trace: Trace, *, bypass_probe: bool =
             n = _number(new, n)
             findings += new
             ran.add(check)
-            trace.emit("Investigator", "query", f"{check}: {len(new)} findings "
+            trace.emit("Investigator", "query", f"{check}: {len(new)} finding{'' if len(new) == 1 else 's'} "
                        f"({sum(f.polarity == 'red_flag' for f in new)} red flags)",
                        findings=[f.to_dict() for f in new])
         stats = verify(h, findings)

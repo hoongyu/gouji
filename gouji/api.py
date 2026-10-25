@@ -12,6 +12,7 @@ from __future__ import annotations
 import html
 import json
 import os
+import re
 import time
 from datetime import UTC, datetime
 from functools import lru_cache
@@ -67,7 +68,10 @@ def _investigate(inv_id: str, run_id: str) -> dict[str, Any]:
     ctx, _ = _state()
     if not ctx.harness.query("SELECT inv_id FROM {invoices} WHERE inv_id = ?", [inv_id]):
         raise HTTPException(404, f"no invoice {inv_id}")
-    result = investigate(ctx, inv_id, Trace(LOGS / f"trace-{run_id}.jsonl", run_id, echo=True))
+    trace = Trace(LOGS / f"trace-{run_id}.jsonl", run_id, echo=True)
+    result = investigate(ctx, inv_id, trace)
+    result["trace"] = trace.events
+    result["run_id"] = run_id
     _cache[inv_id] = result
     return result
 
@@ -112,11 +116,30 @@ def run(req: RunRequest) -> dict[str, Any]:
 
 
 CSS = """
-body{font:15px/1.5 -apple-system,Segoe UI,Helvetica,Arial,sans-serif;max-width:920px;margin:24px auto;padding:0 16px;color:#111}
-h1{font-size:22px;margin:0 0 4px} .muted{color:#666} table{border-collapse:collapse;width:100%;margin:12px 0}
-td,th{border-bottom:1px solid #ddd;padding:6px 8px;text-align:left;vertical-align:top} th{background:#f3f3f3}
-.verdict{border:2px solid #111;padding:14px 16px;margin:16px 0} .hold{border-color:#b00020} .release{border-color:#0a7d32}
-.verdict b{font-size:20px} a{color:#0645ad} code{background:#f3f3f3;padding:0 3px} .red{color:#b00020} .ok{color:#0a7d32}
+:root{--ink:#16181d;--muted:#5f6670;--line:#e3e5e8;--soft:#f5f6f7;--red:#b42318;--red-bg:#fef3f2;--green:#067647;
+--green-bg:#ecfdf3;--amber:#9a6700;--amber-bg:#fff8e6;--link:#1849a9}
+*{box-sizing:border-box} body{font:15px/1.55 -apple-system,"Segoe UI",Helvetica,Arial,sans-serif;color:var(--ink);
+background:#fff;max-width:980px;margin:0 auto;padding:24px 16px 64px}
+a{color:var(--link);text-decoration:none} a:hover{text-decoration:underline}
+h1{font-size:24px;margin:6px 0 2px} h2{font-size:17px;margin:32px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--line)}
+.muted{color:var(--muted)} .small{font-size:13px} code,.mono{font-family:ui-monospace,Consolas,monospace;font-size:13px}
+table{border-collapse:collapse;width:100%} td,th{border-bottom:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+th{background:var(--soft);font-weight:600;font-size:13px}
+.verdict{border-radius:10px;padding:18px 20px;margin:18px 0 8px;border:1px solid}
+.verdict.hold{background:var(--red-bg);border-color:#fecdca} .verdict.release{background:var(--green-bg);border-color:#abefc6}
+.verdict .big{font-size:22px;font-weight:700} .hold .big{color:var(--red)} .release .big{color:var(--green)}
+.verdict .rec{font-size:16px;margin:2px 0 10px}
+.pill{display:inline-block;border-radius:999px;padding:1px 9px;font-size:12px;font-weight:600;white-space:nowrap}
+.p-ok{background:var(--green-bg);color:var(--green)} .p-red{background:var(--red-bg);color:var(--red)}
+.p-amber{background:var(--amber-bg);color:var(--amber)} .p-grey{background:var(--soft);color:var(--muted)}
+.why p{margin:0 0 8px} .cite{font-size:12px;font-weight:600;vertical-align:1px}
+.quarantine{border:1px dashed var(--red);background:#fff;padding:10px 12px;border-radius:8px;margin:8px 0}
+.quarantine .label{font-size:12px;font-weight:600;color:var(--red);text-transform:uppercase;letter-spacing:.04em}
+.timeline{list-style:none;padding:0;margin:0} .timeline li{display:grid;grid-template-columns:120px 1fr;gap:10px;
+padding:6px 0;border-bottom:1px solid var(--line)} .agent{font-weight:600;font-size:13px}
+.kv{display:grid;grid-template-columns:170px 1fr;gap:4px 12px;margin:8px 0} .kv div:nth-child(odd){color:var(--muted)}
+tr.hl td,tr.hl th{background:var(--amber-bg)}
+@media (max-width:640px){.timeline li{grid-template-columns:1fr}.kv{grid-template-columns:1fr}}
 """
 
 
@@ -125,59 +148,140 @@ def _page(title: str, body: str) -> HTMLResponse:
                         f"<title>{html.escape(title)}</title><style>{CSS}</style>{body}")
 
 
+def _eur(minor: int) -> str:
+    return f"EUR {minor / 100:,.2f}"
+
+
+def _verdict(r: dict[str, Any]) -> tuple[str, str, str]:
+    """(css class, headline, one sentence) for a result."""
+    if r["decision"] == "allow":
+        return "release", "Release", "Every required aspect is verified by independent trusted systems."
+    _, _, rest = r["recommendation"].partition(": ")
+    return "hold", "Hold", (rest[:1].upper() + rest[1:] + ".") if rest else "A person must decide."
+
+
+GRADE_PILL = {"verified": ("p-ok", "verified"), "sourced": ("p-amber", "one source"),
+              "user": ("p-amber", "unchecked"), "estimated": ("p-red", "not verified")}
+POLARITY_PILL = {"red_flag": "<span class='pill p-red'>red flag</span>",
+                 "support": "<span class='pill p-ok'>support</span>"}
+
+
+def _link_ids(text: str) -> str:
+    """Escape text and turn [F3] or [F2, F5] into links to the findings."""
+    def links(m: re.Match) -> str:
+        ids = [i.strip() for i in m.group(1).split(",")]
+        return "<span class=cite>[" + ", ".join(f"<a href='#{i}'>{i}</a>" for i in ids) + "]</span>"
+    escaped = html.escape(text)
+    escaped = re.sub(r"\[(F\d+(?:\s*,\s*F\d+)*)\]", links, escaped)
+    return re.sub(r"(?<![\[#\w])(F\d+)\b(?![^<]*</a>)", r"<a href='#\1'>\1</a>", escaped)
+
+
 @app.get("/", response_class=HTMLResponse)
 def index() -> HTMLResponse:
-    ctx, meta = _state()
+    ctx, _ = _state()
     rows = ctx.harness.query("SELECT inv_id, issuer_name, amount_minor, received_at FROM {invoices} "
                              "WHERE status = 'pending' ORDER BY inv_id")
-    body = ("<h1>Payment requests awaiting release</h1><p class=muted>Veltrona Drives GmbH (fictional). "
-            f"Data: {html.escape(ctx.harness.name)}. Click a request to investigate it.</p><table>"
-            "<tr><th>Invoice</th><th>Issuer</th><th>Amount</th></tr>")
-    body += "".join(f"<tr><td><a href='/brief/{r['inv_id']}'>{r['inv_id']}</a></td><td>{html.escape(r['issuer_name'])}"
-                    f"</td><td>EUR {r['amount_minor'] / 100:,.2f}</td></tr>" for r in rows)
-    return _page("gouji", body + "</table>")
+    body = ("<h1>Payment requests awaiting release</h1><p class=muted>Veltrona Drives GmbH (fictional buyer). "
+            f"The five systems are queried in place through <b>{html.escape(ctx.harness.name)}</b>. Open a request to "
+            "investigate it; the mandate, not the model, decides whether it is paid.</p><table>"
+            "<tr><th>Invoice</th><th>Issuer</th><th>Amount</th><th>Received</th><th>Status</th></tr>")
+    for r in rows:
+        done = _cache.get(r["inv_id"])
+        status = ("<span class='pill p-grey'>not investigated</span>" if not done else
+                  "<span class='pill p-ok'>release</span>" if done["decision"] == "allow" else
+                  "<span class='pill p-red'>hold</span>")
+        body += (f"<tr><td><a href='/brief/{r['inv_id']}'>{r['inv_id']}</a></td><td>{html.escape(r['issuer_name'])}</td>"
+                 f"<td>{_eur(r['amount_minor'])}</td><td class=small>{str(r['received_at'])[:10]}</td><td>{status}</td></tr>")
+    return _page("gouji: payment requests", body + "</table>")
 
 
 @app.get("/brief/{inv_id}", response_class=HTMLResponse)
 def brief(inv_id: str) -> HTMLResponse:
     r = _cache.get(inv_id) or _investigate(inv_id, datetime.now(UTC).strftime("ui-%Y%m%dT%H%M%S"))
-    release = r["decision"] == "allow"
-    cite = {f["fid"]: f for f in r["findings"]}
+    cls, headline, sentence = _verdict(r)
+    c = r["contract"]
+    if c:
+        decided = (f"Decision <b>ALLOW</b> under clause {html.escape(', '.join(c['matched_clauses']))} of mandate "
+                   f"<code>{html.escape(c['mandate_id'])}</code> v{c['mandate_version']}, not by the model. "
+                   f"Execution contract <code>{html.escape(c['contract_id'])}</code> issued.")
+    else:
+        decided = ("Decision <b>ASK</b>, taken by the signed mandate, not by the model: no clause allows automatic "
+                   "payment, so a person decides. No execution contract was issued.")
+    body = (f"<p class=small><a href='/'>&larr; All requests</a></p><h1>{html.escape(r['issuer'])}</h1>"
+            f"<div class=muted>Invoice {inv_id} &middot; {_eur(r['amount_minor'])}</div>"
+            f"<div class='verdict {cls}'><div class=big>{headline}</div><div class=rec>{html.escape(sentence)}</div>"
+            f"<div class=small>{decided}</div></div>")
 
-    def link_ids(text: str) -> str:
-        import re
-        return re.sub(r"\b(F\d+)\b", lambda m: f"<a href='#{m.group(1)}'>{m.group(1)}</a>", html.escape(text))
+    body += f"<h2>Why</h2><div class=why><p>{_link_ids(r['brief']['text'])}</p></div>"
+    author = r["brief"]["author"]
+    author = {"model": "the model", "scripted": "the scripted reporter (sample mode, no model)"}.get(author, author)
+    body += (f"<p class='small muted'>Written by {html.escape(author)}. Every sentence cites findings "
+             f"the Verifier re-read from source; {r['brief']['dropped_sentences']} sentence(s) without such citations "
+             "were removed.</p>")
 
-    body = (f"<p class=muted><a href='/'>All requests</a></p><h1>{html.escape(r['issuer'])}: {inv_id}</h1>"
-            f"<p class=muted>EUR {r['amount_minor'] / 100:,.2f}</p>"
-            f"<div class='verdict {'release' if release else 'hold'}'><b>{'Release' if release else 'Hold'}</b><br>"
-            f"{html.escape(r['recommendation'])}<br><span class=muted>Decided by the mandate, not the model: "
-            f"{html.escape(r['decision'])} "
-            f"({html.escape(', '.join(r['matched_clauses']) or 'no clause allows it; a person must approve')})."
-            + (f" Execution contract {html.escape(r['contract']['contract_id'])} issued." if r["contract"] else
-               " No execution contract: the payment system will refuse to pay.") + "</span></div>"
-            f"<h2>Why</h2><p>{link_ids(r['brief']['text'])}</p><p class=muted>Written by: {html.escape(r['brief']['author'])}; "
-            f"{r['brief']['dropped_sentences']} sentence(s) without verified citations removed.</p>")
+    for f in r["findings"]:
+        if f["aspect"] == "injection" and f["polarity"] == "red_flag" and f["verified"]:
+            for cit in f["citations"]:
+                body += (f"<div class=quarantine><div class=label>Quarantined: text addressed to the AI "
+                         f"({html.escape(cit['system'])}.{html.escape(cit['table'])}.{html.escape(cit['column'])})</div>"
+                         f"<div class=mono>{html.escape(str(cit['value'])[:600])}</div>"
+                         "<div class='small muted'>Treated as data. It is never evidence and never an instruction."
+                         "</div></div>")
+
     if r["alerts"]:
         body += "<h2>World Model alerts</h2><ul>" + "".join(
-            f"<li class=red>{html.escape(a['message'])}</li>" for a in r["alerts"]) + "</ul>"
+            f"<li>{html.escape(a['message'])} <span class='pill p-grey'>{html.escape(a['kind'])}</span></li>"
+            for a in r["alerts"]) + "</ul>"
+
     body += "<h2>Evidence by aspect</h2><table><tr><th>Aspect</th><th>Grade</th><th>Why</th></tr>"
-    body += "".join(f"<tr><td>{a}</td><td class={'ok' if g == 'verified' else 'red'}>{g}</td>"
-                    f"<td>{html.escape(r['grade_reasons'].get(a, ''))}</td></tr>" for a, g in r["grades"].items())
-    body += "</table><h2>Findings (every cell re-read from its source)</h2><table><tr><th>Id</th><th>Finding</th><th>Sources</th></tr>"
+    for aspect, g in r["grades"].items():
+        pill, label = GRADE_PILL.get(g, ("p-grey", g))
+        body += (f"<tr><td>{aspect}</td><td><span class='pill {pill}'>{label}</span></td>"
+                 f"<td>{_link_ids(r['grade_reasons'].get(aspect, ''))}</td></tr>")
+    body += "</table>"
+
+    body += "<h2>Payment system</h2><div class=kv>"
+    if c:
+        pay = r["payment"] or {}
+        evidence = ", ".join(f"<a href='#{i}'>{i}</a>" for i in c["evidence_ids"]) or "-"
+        body += (f"<div>Execution contract</div><div><code>{html.escape(c['contract_id'])}</code>, HMAC-signed</div>"
+                 f"<div>Bound to payment</div><div class=mono>{html.escape(c['facts_hash'][:16])}&hellip;</div>"
+                 f"<div>Valid</div><div>{html.escape(c['issued_at'])} to {html.escape(c['expires_at'])}, single use</div>"
+                 f"<div>Rests on</div><div>{evidence}</div>"
+                 f"<div>Executor</div><div><span class='pill p-ok'>{html.escape(str(pay.get('status', '')))}</span></div>")
+    else:
+        probe = r["bypass_probe"] or {}
+        body += ("<div>Execution contract</div><div>none</div>"
+                 f"<div>Direct pay call</div><div><span class='pill p-red'>{html.escape(str(probe.get('status', 'not tried')))}"
+                 f"</span> {html.escape(str(probe.get('reason', '')))}</div>")
+    body += "</div>"
+
+    body += ("<h2>Findings</h2><p class='small muted'>Every cited cell was re-read from its source system by primary "
+             "key. Open a cell to see the row it came from.</p><table><tr><th>Id</th><th>Finding</th><th>Cited cells</th></tr>")
     for f in r["findings"]:
         if f["polarity"] == "info" and not f["verified"]:
             continue
-        cls = "red" if f["polarity"] == "red_flag" else ("ok" if f["polarity"] == "support" else "muted")
-        srcs = "<br>".join(f"<a href='/row/{c['table']}/{html.escape(str(c['pk']))}'>{c['system']}.{c['table']}"
-                           f"[{html.escape(str(c['pk']))}].{c['column']}</a>" for c in f["citations"])
-        body += (f"<tr id='{f['fid']}'><td>{f['fid']}</td><td class={cls}>{html.escape(f['claim'])}"
-                 f"{'' if f['verified'] else ' <b>(not verified)</b>'}</td><td>{srcs}</td></tr>")
-    return _page(f"{inv_id} brief", body + "</table>")
+        cites = "<br>".join(
+            f"<a class=small href='/row/{cit['table']}/{html.escape(str(cit['pk']))}?col={cit['column']}'>"
+            f"{cit['system']}.{cit['table']}[{html.escape(str(cit['pk']))}].{cit['column']}</a>" for cit in f["citations"])
+        body += (f"<tr id='{f['fid']}'><td><b>{f['fid']}</b><br><span class='small muted'>{f['check']}</span></td>"
+                 f"<td>{POLARITY_PILL.get(f['polarity'], '<span class=\"pill p-grey\">context</span>')} "
+                 f"{html.escape(f['claim'])}{'' if f['verified'] else ' <b>(not verified, ignored)</b>'}</td>"
+                 f"<td>{cites}</td></tr>")
+    body += "</table>"
+
+    if r.get("trace"):
+        body += ("<h2>How gouji got here</h2><p class='small muted'>Each agent's step for this request, from "
+                 f"<code>logs/trace-{html.escape(r['run_id'])}.jsonl</code>: {r['queries']} queries in {r['seconds']} s."
+                 "</p><ol class=timeline>")
+        body += "".join(f"<li><span class=agent>{html.escape(e['agent'])}</span><span>{_link_ids(e['summary'])}</span></li>"
+                        for e in r["trace"])
+        body += "</ol>"
+    return _page(f"{inv_id}: {headline}", body)
 
 
 @app.get("/row/{table}/{pk}", response_class=HTMLResponse)
-def row(table: str, pk: str) -> HTMLResponse:
+def row(table: str, pk: str, col: str = "") -> HTMLResponse:
     if table not in TABLES:
         raise HTTPException(404, "unknown table")
     ctx, _ = _state()
@@ -188,5 +292,6 @@ def row(table: str, pk: str) -> HTMLResponse:
     body = (f"<p class=muted><a href='javascript:history.back()'>Back</a></p><h1>{system}.{table}</h1>"
             f"<p class=muted>Re-read just now from {html.escape(ctx.harness.name)} by primary key {key} = "
             f"{html.escape(pk)}.</p><table>" + "".join(
-                f"<tr><th>{html.escape(k)}</th><td>{html.escape(str(v))}</td></tr>" for k, v in data.items()) + "</table>")
+                f"<tr{' class=hl' if k == col else ''}><th>{html.escape(k)}</th><td>{html.escape(str(v))}</td></tr>"
+                for k, v in data.items()) + "</table>")
     return _page(f"{table} {pk}", body)
