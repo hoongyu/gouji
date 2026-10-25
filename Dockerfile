@@ -10,7 +10,8 @@ COPY --from=ghcr.io/astral-sh/uv:0.12.0 /uv /bin/uv
 COPY pyproject.toml uv.lock README.md ./
 RUN uv sync --frozen --no-dev --no-install-project
 COPY . .
-RUN uv sync --frozen --no-dev && mkdir -p /app/logs
+# logs/ must be writable by any user: Hugging Face Spaces run the container as uid 1000
+RUN uv sync --frozen --no-dev && mkdir -p /app/logs && chmod 777 /app/logs
 
 EXPOSE 8000
 CMD ["/app/.venv/bin/python", "run.py", "serve"]

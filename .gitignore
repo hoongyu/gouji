@@ -15,3 +15,4 @@ logs/
 
 # local tool settings
 .claude/
+output_examples/eval-ci-*

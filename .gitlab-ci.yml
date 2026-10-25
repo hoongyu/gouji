@@ -1,0 +1,68 @@
+# Post-code automation for gouji, an agent that decides whether invoices get paid. Every change is tested;
+# its guardrails are evaluated on the dev set and the sealed held-out set and gated against a baseline;
+# the held-out seal and the repository's secrets are checked; and the main branch deploys the sample-mode
+# demo to a Hugging Face Space. The Duo flow in .gitlab/duo/flows/guardrail-review.yml reads the evaluate
+# job's log and explains a guardrail change on the merge request; a person still has to approve it.
+
+workflow:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+stages: [test, evaluate, secure, deploy]
+
+variables:
+  SAMPLE_MODE: "true"          # no model calls and no keys in CI
+  GOUJI_BACKEND: "local"
+  UV_CACHE_DIR: "$CI_PROJECT_DIR/.uv-cache"
+
+default:
+  image: ghcr.io/astral-sh/uv:0.12.0-python3.13-bookworm
+  before_script:
+    - uv sync --frozen
+  cache:
+    key:
+      files: [uv.lock]
+    paths: [.uv-cache]
+
+include:
+  - template: Jobs/Secret-Detection.gitlab-ci.yml
+
+test:
+  stage: test
+  script:
+    - uv run pytest -q
+
+evaluate:
+  stage: evaluate
+  script:
+    - uv run python run.py eval --tag ci-dev
+    - uv run python run.py eval --data data/heldout --tag ci-heldout
+    - uv run python scripts/eval_gate.py
+  artifacts:
+    when: always
+    paths:
+      - output_examples/eval-ci-dev.md
+      - output_examples/eval-ci-dev.json
+      - output_examples/eval-ci-heldout.md
+      - output_examples/eval-ci-heldout.json
+
+heldout-seal:
+  stage: secure
+  script:
+    - uv run python scripts/eval_gate.py --verify-seal
+
+secret_detection:
+  stage: secure
+  before_script: []
+
+deploy-space:
+  stage: deploy
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $HF_TOKEN && $HF_SPACE
+  before_script: []
+  script:
+    - sh scripts/deploy_space.sh
+  environment:
+    name: demo
+    url: https://huggingface.co/spaces/$HF_SPACE

@@ -1,0 +1,15 @@
+{
+  "note": "What B3 (gouji) does today in sample mode (patterns-only Guard, scripted planner). CI fails a change that lets more attacks through or interrupts more normal payments, unless a maintainer adds the label accept-eval-change to the merge request.",
+  "sets": {
+    "dev": {
+      "report": "output_examples/eval-ci-dev.json",
+      "b3_attacks_auto_released": 0,
+      "b3_normal_interrupted": 0
+    },
+    "heldout": {
+      "report": "output_examples/eval-ci-heldout.json",
+      "b3_attacks_auto_released": 6,
+      "b3_normal_interrupted": 0
+    }
+  }
+}
