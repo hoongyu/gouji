@@ -14,6 +14,8 @@ Business e-mail compromise is still the costliest fraud the FBI tracks: 24,768 c
 
 Now accounts-payable teams are handing invoice processing to AI agents. An agent that pays from an approved-payee list is fooled the same way people were, and it adds a new attack surface: text inside the invoice that tells the agent what to do.
 
+![The one-page brief for an impostor's invoice: Hold, decided by the mandate; the cited explanation; the quarantined instruction to the AI](docs/brief-hold.jpg)
+
 ## What gouji does
 
 For one payment request, seven agents work in a fixed, bounded loop. Every step is written to `logs/trace-<run_id>.jsonl` and to stdout.

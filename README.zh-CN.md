@@ -14,6 +14,8 @@ Open Agent Hackathon 2026 · 赛道 2：The Agent That Can Explain Why
 
 现在应付团队正把发票处理交给 AI 智能体。照着已批准收款人名单付款的智能体，会像当年的人一样被骗；它还多了一个新的攻击面：发票里写给智能体看的指令。
 
+![冒名者发票的一页简报：结论是拦下，由授权书决定；带引用的解释；被隔离的写给 AI 的指令](docs/brief-hold.jpg)
+
 ## gouji 做什么
 
 对每一笔付款申请，七个智能体按固定且有上限的流程协作。每一步都写进 `logs/trace-<run_id>.jsonl`，同时打印到标准输出。
