@@ -8,7 +8,7 @@ Open Agent Hackathon 2026 · 赛道 2：The Agent That Can Explain Why
 
 ## 问题
 
-2013 至 2015 年，有人在拉脱维亚注册了一家和亚洲某电脑硬件厂同名的公司，在拉脱维亚和塞浦路斯开了银行账户，然后冒充这家硬件厂给两家美国互联网公司发邮件。媒体报道这两家是 Google 和 Facebook。它们一共把超过 1.2 亿美元汇给了他（[美国司法部，2019](https://www.justice.gov/usao-sdny/pr/lithuanian-man-sentenced-5-years-prison-theft-over-120-million-fraudulent-business)；[WSKG/NPR，2019](https://www.wskg.org/news/2019-03-25/man-pleads-guilty-in-new-york-to-fleecing-facebook-and-google-of-100-million)）。这次攻击在技术上一点都不高明：名字对得上，订单是真的，发票看着也对。
+2013 至 2015 年，有人在拉脱维亚注册了一家和亚洲某电脑硬件厂同名的公司，在拉脱维亚和塞浦路斯开了银行账户，然后冒充这家硬件厂给两家美国互联网公司发邮件。媒体报道这两家是 Google 和 Facebook。它们一共把超过 1.2 亿美元汇给了他（[美国司法部，2019](https://www.justice.gov/usao-sdny/pr/lithuanian-man-sentenced-5-years-prison-theft-over-120-million-fraudulent-business)；[WSKG/NPR，2019](https://www.wskg.org/news/2019-03-25/man-pleads-guilty-in-new-york-to-fleecing-facebook-and-google-of-100-million)）。这次攻击在技术上一点都不高明：公司名对得上，邮件看着就像供应商发的。
 
 商业邮件诈骗（BEC）至今仍是 FBI 统计里损失最大的诈骗类型：2025 年报案 24,768 宗，报告损失 30.5 亿美元，其中涉及 AI 的 BEC 损失超过 3,000 万美元（[IC3 2025 年报](https://www.ic3.gov/AnnualReport/Reports/2025_IC3Report.pdf)，第 25、26、39 页）。
 
