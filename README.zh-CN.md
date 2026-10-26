@@ -1,10 +1,10 @@
 [English](README.md) | 简体中文
 
-# gouji（勾稽）
+# PayProof
 
-**一个能讲清“为什么”的付款前调查员。** 每张发票付款之前，gouji 在 ERP、供应商主数据、合同、应付邮箱和公司注册信息这五个系统里就地查询，核实供应商是不是它自称的那家公司。它给出的每一句解释，都引用一个由程序重新读过的数据库单元格。付不付钱由签过名的授权书（mandate）决定，不由模型决定；没有签名执行合约的付款，付款系统一律拒绝。
+**一个能讲清“为什么”的付款前调查员。** 每张发票付款之前，PayProof 在 ERP、供应商主数据、合同、应付邮箱和公司注册信息这五个系统里就地查询，核实供应商是不是它自称的那家公司。它给出的每一句解释，都引用一个由程序重新读过的数据库单元格。付不付钱由签过名的授权书（mandate）决定，不由模型决定；没有签名执行合约的付款，付款系统一律拒绝。
 
-Open Agent Hackathon 2026 · 赛道 2：The Agent That Can Explain Why
+Open Agent Hackathon 2026 · 赛道 2：The Agent That Can Explain Why。代码和仓库沿用工作名 *gouji*（勾稽：账目之间交叉核对）。
 
 ## 问题
 
@@ -16,7 +16,7 @@ Open Agent Hackathon 2026 · 赛道 2：The Agent That Can Explain Why
 
 ![冒名者发票的一页简报：结论是拦下，由授权书决定；带引用的解释；被隔离的写给 AI 的指令](docs/brief-hold.jpg)
 
-## gouji 做什么
+## PayProof 做什么
 
 对每一笔付款申请，七个智能体按固定且有上限的流程协作。每一步都写进 `logs/trace-<run_id>.jsonl`，同时打印到标准输出。
 
@@ -46,15 +46,15 @@ Open Agent Hackathon 2026 · 赛道 2：The Agent That Can Explain Why
 
 1. **证据由程序分级。** 像“身份”这样的方面，只有至少两个独立的可信系统一致时才评为 VERIFIED。邮箱永远不算可信来源，因为攻击者就是在那里写字的。
 2. **模型从不做决定。** 授权书是一份签名的策略。只有当所有必需方面（身份、账户、价格、收货、重复、注入）都是 VERIFIED 时，它才允许自动支付，单笔上限 25 万欧元，收款人在不在签名名单里都一样。其余情况一律 ASK：由人来决定，简报就摆在他面前。
-3. **没有合约就不付款。** 决定为 ALLOW 时，gouji 签发一份执行合约：HMAC 签名，绑定这笔付款的精确内容哈希，15 分钟内有效，只能用一次。付款执行器拒绝所有不带合约的调用。每个被拦下的案例还会跑一次绕过测试：不带合约直接调用付款，trace 里能看到它被拒绝。
+3. **没有合约就不付款。** 决定为 ALLOW 时，PayProof 签发一份执行合约：HMAC 签名，绑定这笔付款的精确内容哈希，15 分钟内有效，只能用一次。付款执行器拒绝所有不带合约的调用。每个被拦下的案例还会跑一次绕过测试：不带合约直接调用付款，trace 里能看到它被拒绝。
 
 ## 结果
 
-同一批案例跑两种配置。**B1** 只有授权书：名单里的收款人就付。**B3** 是 gouji：同一份授权书，但每个方面都必须是 VERIFIED。
+同一批案例跑两种配置。**B1** 只有授权书：名单里的收款人就付。**B3** 是 PayProof：同一份授权书，但每个方面都必须是 VERIFIED。
 
 ### 开发集（48 笔申请，由我们设计）
 
-| | B1：只有授权书 | B3：gouji |
+| | B1：只有授权书 | B3：PayProof |
 |---|---|---|
 | 未经人工就付出去的攻击 | 16 / 24 | 0 / 24 |
 | 未经人工就付出去的攻击金额 | EUR 210,987.33（61.8%） | EUR 0.00（0.0%） |
@@ -66,7 +66,7 @@ Open Agent Hackathon 2026 · 赛道 2：The Agent That Can Explain Why
 
 封存的留出集（commit 8bddf05）上，每种配置只跑了一次，中间没有改过代码。
 
-| | B1：只有授权书 | B3：gouji，只用模式匹配 | B3：gouji，加模型复核 |
+| | B1：只有授权书 | B3：PayProof，只用模式匹配 | B3：PayProof，加模型复核 |
 |---|---|---|---|
 | 未经人工就付出去的攻击 | 15 / 24 | 6 / 24 | 2 / 24 |
 | 未经人工就付出去的攻击金额 | EUR 236,300.21（57.2%） | EUR 65,499.90（15.9%） | EUR 13,714.60（3.3%） |
@@ -117,7 +117,7 @@ uv run pytest                                   # 测试
 
 ### 样例模式
 
-设置 `SAMPLE_MODE=true`，或者根本不配密钥，gouji 就不需要联网：后端是 DuckDB 读取 `data/` 下的文件，规划和报告用脚本，守卫只用模式匹配。每条 trace 都写明跑的是哪一种。
+设置 `SAMPLE_MODE=true`，或者根本不配密钥，PayProof 就不需要联网：后端是 DuckDB 读取 `data/` 下的文件，规划和报告用脚本，守卫只用模式匹配。每条 trace 都写明跑的是哪一种。
 
 ### API
 
@@ -135,7 +135,7 @@ uv run pytest                                   # 测试
 
 [`input_examples/`](input_examples/) 和 [`output_examples/`](output_examples/) 里有三笔申请及其结果：
 
-| 输入 | 案例 | gouji |
+| 输入 | 案例 | PayProof |
 |---|---|---|
 | `example_1_doppelganger.json` | 冒名者以供应商的名字在拉脱维亚注册，备注里还藏了一条给 AI 的指令 | 拦下：疑似诈骗 |
 | `example_2_price_inflation.json` | 已批准的供应商开票价高出合同价 18% | 拦下：请供应商更正发票 |
@@ -180,7 +180,7 @@ Guard ──► Planner ──► Investigator ──► Verifier ──► Worl
 
 **Zetaris。** 五个系统原地不动：ERP 和供应商主数据是数据库，合同是 Parquet，邮箱是 JSONL，注册信息是 CSV。每项核查是一条跨系统关联的 ANSI SQL，Verifier 也通过同一个接口重新读取每个被引用的单元格。设置了 `ZETARIS_REST_URL` 和 `ZETARIS_API_KEY` 时，所有查询都通过 Zetaris 的 REST API 发给它（`gouji/harness.py` 的 `ZetarisHarness`，不需要 Java 和 JDBC 驱动）；没有设置时，同样的 SQL 在 DuckDB 上对同样的文件执行。在 `.env` 里用 `ZETARIS_TABLES` 把逻辑表映射到你的 Zetaris catalog。
 
-**Meterless。** gouji 实现了 World Model 引擎的三个服务，沿用指南里的名字（`gouji/world_model.py`）。实体按注册号和法域识别，同名的两家公司就是两个实体，“冒名供应商”告警来自世界模型，而不是来自提示词。存储是只追加的 JSONL 日志，规范视图可以从中重建。所有模型调用都经过一个注入的 generator（`gouji/llm.py`），符合引擎指南的要求，所以 DeepSeek 换成 Nemotron 或任何兼容 OpenAI 接口的模型只是改配置。附加组件 `gouji/contract.py` 参照 Scout intent 的设计：下游系统在动手之前先验证一个签名对象。
+**Meterless。** PayProof 实现了 World Model 引擎的三个服务，沿用指南里的名字（`gouji/world_model.py`）。实体按注册号和法域识别，同名的两家公司就是两个实体，“冒名供应商”告警来自世界模型，而不是来自提示词。存储是只追加的 JSONL 日志，规范视图可以从中重建。所有模型调用都经过一个注入的 generator（`gouji/llm.py`），符合引擎指南的要求，所以 DeepSeek 换成 Nemotron 或任何兼容 OpenAI 接口的模型只是改配置。附加组件 `gouji/contract.py` 参照 Scout intent 的设计：下游系统在动手之前先验证一个签名对象。
 
 **NVIDIA。** 留出红队集由 Nemotron（build.nvidia.com 上的 `nvidia/nemotron-3.5-lightning-30b-a3b`）撰写：冒名邮件和改账户邮件、仿冒域名、8 条新的提示注入、8 句专门用来绊倒简单过滤器的正常文本，以及 4 份真实的银行变更通知（`gouji/redteam.py`）。换一个不同于开发时所用的模型来写，核查面对的就是作者没写过的文本。
 
@@ -197,7 +197,7 @@ Guard ──► Planner ──► Investigator ──► Verifier ──► Worl
 
 - 案例构成和数量是为一个虚构买方设计的，不是实地数据。这些数字说明核查在这些案例上能抓到什么，不代表诈骗发生率。
 - 守卫的模式匹配有意做得很窄。遇到没见过的文本时，它依赖模型复核，而模型复核也会出错。
-- gouji 负责拦下付款并说明原因，不负责联系供应商。按档案号码回拨仍然是人的步骤，本来也应该如此。
+- PayProof 负责拦下付款并说明原因，不负责联系供应商。按档案号码回拨仍然是人的步骤，本来也应该如此。
 - Zetaris 适配器按官方文档的 REST API 编写，还没有对真实 Zetaris 实例跑过。
 
 ## 已有组件

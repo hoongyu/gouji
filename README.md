@@ -1,10 +1,10 @@
 English | [简体中文](README.zh-CN.md)
 
-# gouji
+# PayProof
 
-**A pre-payment investigator that can explain why.** Before an invoice is paid, gouji checks across the ERP, the vendor master, the contracts, the accounts-payable mailbox and the company registry, queried where they live, whether the supplier really is who it claims to be. Every sentence of its explanation cites a database cell that a program has re-read. The decision to pay is taken by a signed mandate, not by the model, and the payment system refuses any payment that lacks a signed execution contract.
+**A pre-payment investigator that can explain why.** Before an invoice is paid, PayProof checks across the ERP, the vendor master, the contracts, the accounts-payable mailbox and the company registry, queried where they live, whether the supplier really is who it claims to be. Every sentence of its explanation cites a database cell that a program has re-read. The decision to pay is taken by a signed mandate, not by the model, and the payment system refuses any payment that lacks a signed execution contract.
 
-Open Agent Hackathon 2026 · Track 2: The Agent That Can Explain Why
+Open Agent Hackathon 2026 · Track 2: The Agent That Can Explain Why. The code and the repository go by its working name, *gouji*, from the Chinese 勾稽: cross-checking accounts against each other.
 
 ## The problem
 
@@ -16,7 +16,7 @@ Now accounts-payable teams are handing invoice processing to AI agents. An agent
 
 ![The one-page brief for an impostor's invoice: Hold, decided by the mandate; the cited explanation; the quarantined instruction to the AI](docs/brief-hold.jpg)
 
-## What gouji does
+## What PayProof does
 
 For one payment request, seven agents work in a fixed, bounded loop. Every step is written to `logs/trace-<run_id>.jsonl` and to stdout.
 
@@ -46,15 +46,15 @@ The seven checks:
 
 1. **Evidence is graded by a program.** An aspect such as identity is VERIFIED only when at least two independent trusted systems agree. The mailbox is never trusted: it is where the attacker writes.
 2. **The model never decides.** The mandate is a signed policy. It allows automatic payment of up to EUR 250,000 only when every required aspect (identity, account, price, receipt, duplicate, injection) is VERIFIED, whether or not the payee is in the signed registry. Anything else is ASK: a person decides, with the brief in front of them.
-3. **No contract, no payment.** On ALLOW, gouji issues an execution contract: HMAC-signed, bound to a hash of the exact payment, valid for 15 minutes, usable once. The payment executor refuses every call without one. Each held case also runs a bypass probe: a direct pay call without a contract, which the trace shows being refused.
+3. **No contract, no payment.** On ALLOW, PayProof issues an execution contract: HMAC-signed, bound to a hash of the exact payment, valid for 15 minutes, usable once. The payment executor refuses every call without one. Each held case also runs a bypass probe: a direct pay call without a contract, which the trace shows being refused.
 
 ## Results
 
-Two configurations on the same cases. **B1** is the mandate alone: pay anyone in the approved-payee registry. **B3** is gouji: the same mandate, but every aspect must be VERIFIED.
+Two configurations on the same cases. **B1** is the mandate alone: pay anyone in the approved-payee registry. **B3** is PayProof: the same mandate, but every aspect must be VERIFIED.
 
 ### Dev set (48 requests, designed by us)
 
-| | B1: mandate only | B3: gouji |
+| | B1: mandate only | B3: PayProof |
 |---|---|---|
 | Attacks paid without a human | 16 / 24 | 0 / 24 |
 | Attack money paid without a human | EUR 210,987.33 (61.8%) | EUR 0.00 (0.0%) |
@@ -66,7 +66,7 @@ We wrote both the checks and these cases, so this table shows that the pipeline 
 
 Each configuration ran once on the sealed set (commit 8bddf05), with no code change in between.
 
-| | B1: mandate only | B3: gouji, patterns only | B3: gouji, with model screen |
+| | B1: mandate only | B3: PayProof, patterns only | B3: PayProof, with model screen |
 |---|---|---|---|
 | Attacks paid without a human | 15 / 24 | 6 / 24 | 2 / 24 |
 | Attack money paid without a human | EUR 236,300.21 (57.2%) | EUR 65,499.90 (15.9%) | EUR 13,714.60 (3.3%) |
@@ -117,7 +117,7 @@ Add `--live` to `case` or `eval` to let DeepSeek plan, screen for injection and 
 
 ### Sample mode
 
-With `SAMPLE_MODE=true`, or with no keys at all, gouji needs no network: the backend is DuckDB over the files in `data/`, the planner and reporter are scripted, and the Guard uses patterns only. Every trace says which of these ran.
+With `SAMPLE_MODE=true`, or with no keys at all, PayProof needs no network: the backend is DuckDB over the files in `data/`, the planner and reporter are scripted, and the Guard uses patterns only. Every trace says which of these ran.
 
 ### API
 
@@ -176,7 +176,7 @@ The invoice comes from a Latvian registration while the order, the vendor master
 
 [`input_examples/`](input_examples/) and [`output_examples/`](output_examples/) hold three requests and their results:
 
-| Input | Case | gouji |
+| Input | Case | PayProof |
 |---|---|---|
 | `example_1_doppelganger.json` | An impostor registered under the supplier's name in Latvia, with an instruction to the AI hidden in the notes | Hold: likely fraud |
 | `example_2_price_inflation.json` | An approved supplier invoices 18% above the contract price | Hold: ask the supplier to correct the invoice |
@@ -221,7 +221,7 @@ Guard ──► Planner ──► Investigator ──► Verifier ──► Worl
 
 **Zetaris.** The five systems stay where they are: the ERP and the vendor master as databases, the contracts as Parquet, the mailbox as JSONL, the registry as CSV. Each check is one ANSI SQL query that joins across them, and the Verifier re-reads every cited cell through the same interface. With `ZETARIS_REST_URL` and `ZETARIS_API_KEY` set, every query goes to Zetaris through its REST API (`gouji/harness.py`, `ZetarisHarness`; no Java or JDBC driver needed); without them, the same SQL runs on DuckDB over the same files. Map the logical tables to your Zetaris catalog with `ZETARIS_TABLES` in `.env`.
 
-**Meterless.** gouji implements the World Model engine's three services, under the guide's names (`gouji/world_model.py`). Entities are keyed by registration number and jurisdiction, so two companies with one name are two entities, and the doppelganger alert comes from the World Model, not from a prompt. The store is an append-only JSONL log the canonical view can be rebuilt from. Every model call goes through one injected generator (`gouji/llm.py`), as the engine guides require, so DeepSeek can be swapped for Nemotron or any OpenAI-compatible model by configuration. A bonus component, `gouji/contract.py`, follows the Scout intent design: a signed object the downstream system verifies before it acts.
+**Meterless.** PayProof implements the World Model engine's three services, under the guide's names (`gouji/world_model.py`). Entities are keyed by registration number and jurisdiction, so two companies with one name are two entities, and the doppelganger alert comes from the World Model, not from a prompt. The store is an append-only JSONL log the canonical view can be rebuilt from. Every model call goes through one injected generator (`gouji/llm.py`), as the engine guides require, so DeepSeek can be swapped for Nemotron or any OpenAI-compatible model by configuration. A bonus component, `gouji/contract.py`, follows the Scout intent design: a signed object the downstream system verifies before it acts.
 
 **NVIDIA.** Nemotron (`nvidia/nemotron-3.5-lightning-30b-a3b` on build.nvidia.com) wrote the held-out red-team set: the impostor and bank-change e-mails, the look-alike domains, eight new prompt injections, eight honest sentences meant to trip a naive filter, and four genuine bank-change notices (`gouji/redteam.py`). Using a different model from the one we built with means the checks are tested on text their authors did not write.
 
@@ -252,7 +252,7 @@ Limits of the data: the case mix and volumes are design choices for a fictional 
 
 - The case mix and volumes are design choices for a fictional buyer, not field data. The numbers show what the checks catch on these cases, not a fraud rate.
 - The Guard's pattern check is narrow by design. On text it has not seen it relies on the model screen, and a model screen can be wrong.
-- gouji holds a payment and explains why; it does not contact the supplier. The callback on the number on file stays a human step, as it should.
+- PayProof holds a payment and explains why; it does not contact the supplier. The callback on the number on file stays a human step, as it should.
 - The Zetaris adapter is written against the documented REST API; it has not yet run against a live Zetaris instance.
 
 ## Existing components

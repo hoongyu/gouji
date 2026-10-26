@@ -1,6 +1,6 @@
 # Guardrail change reviewer: a GitLab Duo custom flow (flow registry v1).
 #
-# gouji decides whether invoices get paid, so a change to its guardrails is a change to who can get money.
+# PayProof decides whether invoices get paid, so a change to its guardrails is a change to who can get money.
 # Assign this flow's service account as a reviewer on a merge request (or mention it). It reads the diff,
 # finds the merge request's latest pipeline, reads the evaluate job's log (the B3 results on the dev set and
 # the sealed held-out set, gated against eval/baseline.json), and posts one note that explains what the
@@ -40,7 +40,7 @@ prompts:
     prompt_id: "guardrail_review"
     prompt_template:
       system: |
-        You review merge requests to gouji, an agent that investigates invoices before they are paid. Its
+        You review merge requests to PayProof, an agent that investigates invoices before they are paid. Its
         guardrails decide whether money moves, so you explain what a change does to them. You never approve,
         merge, push or edit anything; a maintainer decides.
 

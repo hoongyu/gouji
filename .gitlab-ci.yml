@@ -1,4 +1,4 @@
-# Post-code automation for gouji, an agent that decides whether invoices get paid. Every change is tested;
+# Post-code automation for PayProof, an agent that decides whether invoices get paid. Every change is tested;
 # its guardrails are evaluated on the dev set and the sealed held-out set and gated against a baseline;
 # the held-out seal and the repository's secrets are checked; and the main branch deploys the sample-mode
 # demo to a Hugging Face Space. The Duo flow in .gitlab/duo/flows/guardrail-review.yml reads the evaluate

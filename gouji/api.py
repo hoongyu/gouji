@@ -43,7 +43,7 @@ AGENTS = [
     {"name": "Reporter", "role": "Writes the brief; sentences without verified citations are removed"},
 ]
 
-app = FastAPI(title="gouji", version="0.1.0")
+app = FastAPI(title="PayProof", version="0.1.0")
 
 
 @lru_cache(maxsize=1)
@@ -192,7 +192,7 @@ def index() -> HTMLResponse:
                   "<span class='pill p-red'>hold</span>")
         body += (f"<tr><td><a href='/brief/{r['inv_id']}'>{r['inv_id']}</a></td><td>{html.escape(r['issuer_name'])}</td>"
                  f"<td>{_eur(r['amount_minor'])}</td><td class=small>{str(r['received_at'])[:10]}</td><td>{status}</td></tr>")
-    return _page("gouji: payment requests", body + "</table>")
+    return _page("PayProof: payment requests", body + "</table>")
 
 
 @app.get("/brief/{inv_id}", response_class=HTMLResponse)
@@ -271,7 +271,7 @@ def brief(inv_id: str) -> HTMLResponse:
     body += "</table>"
 
     if r.get("trace"):
-        body += ("<h2>How gouji got here</h2><p class='small muted'>Each agent's step for this request, from "
+        body += ("<h2>How PayProof got here</h2><p class='small muted'>Each agent's step for this request, from "
                  f"<code>logs/trace-{html.escape(r['run_id'])}.jsonl</code>: {r['queries']} queries in {r['seconds']} s."
                  "</p><ol class=timeline>")
         body += "".join(f"<li><span class=agent>{html.escape(e['agent'])}</span><span>{_link_ids(e['summary'])}</span></li>"

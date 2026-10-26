@@ -1,5 +1,6 @@
 {
-  "name": "gouji",
+  "name": "PayProof",
+  "code_name": "gouji (the package and repository name; Chinese for cross-checking accounts)",
   "tagline": "A pre-payment investigator: before an invoice is paid, it proves who the supplier is, with evidence a program re-reads, and a mandate outside the model decides whether money moves.",
   "hackathon": "Open Agent Hackathon 2026",
   "track": "Track 2: The Agent That Can Explain Why",

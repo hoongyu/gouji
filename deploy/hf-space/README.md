@@ -1,5 +1,5 @@
 ---
-title: gouji
+title: PayProof
 emoji: 🧾
 colorFrom: gray
 colorTo: red
@@ -10,9 +10,9 @@ license: mit
 short_description: A pre-payment investigator that can explain why
 ---
 
-# gouji: live demo
+# PayProof: live demo
 
-Before an invoice is paid, gouji checks across five fictional systems (ERP, vendor master, contracts,
+Before an invoice is paid, PayProof checks across five fictional systems (ERP, vendor master, contracts,
 accounts-payable mailbox, company registry) whether the supplier is who it claims to be. Every sentence of
 its explanation cites a cell a program re-read, a signed mandate (not the model) decides whether money moves,
 and the payment system refuses any payment without a signed execution contract.
