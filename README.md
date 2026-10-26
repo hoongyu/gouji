@@ -168,7 +168,7 @@ WHERE i.inv_id = 'INV-5567'
 
 The invoice comes from a Latvian registration while the order, the vendor master and the contract all point to the Taiwanese one: that row is findings F2 and F3 in the brief above.
 
-**Run record.** RUN_RECORD
+**Run record.** 27 October 2026, 00:20 to 00:35 CET, on a local Zetaris 2.4.3 install (Docker, hackathon build v2.4.3.1) with the dev set (`data/sample`, seed 20261022). All nine tables registered; their row counts on Zetaris equal the local files (86, 84, 90, 42, 20, 12, 18, 63, 20). Three requests investigated with every query on Zetaris, with the same decisions and evidence grades as on DuckDB: INV-5567 (the impostor: ASK, hold as likely fraud), INV-5579 (18% over the contract: ASK, have the supplier correct it) and INV-5559 (a genuine bank change: ALLOW, execution contract issued). 125 federated queries in all (46, 40 and 39), about 3 s each on the laptop-sized engine (2 cores). Every statement sent, with its row count and timing, is in [`output_examples/zetaris-run/`](output_examples/zetaris-run/). One thing learned on the way: Zetaris reads a JSON file as one document, so the mailbox is stored as a JSON array.
 
 **Objects created, and cleanup.** In Zetaris: datasources `erp` and `vendor_master` with their registered tables, and Lightning database `documents` with the file tables `contracts`, `registry` and `mailbox`. In Docker: the `postgres` and `s3` containers of `deploy/zetaris-sources` and the PostgreSQL volume. To remove them: `DROP DATASOURCE erp` and `DROP DATASOURCE vendor_master` in the Zetaris SQL Editor, drop the `documents` tables there, then `docker compose down -v` in `deploy/zetaris-sources`.
 
@@ -253,7 +253,7 @@ Limits of the data: the case mix and volumes are design choices for a fictional 
 - The case mix and volumes are design choices for a fictional buyer, not field data. The numbers show what the checks catch on these cases, not a fraud rate.
 - The Guard's pattern check is narrow by design. On text it has not seen it relies on the model screen, and a model screen can be wrong.
 - PayProof holds a payment and explains why; it does not contact the supplier. The callback on the number on file stays a human step, as it should.
-- The Zetaris adapter is written against the documented REST API; it has not yet run against a live Zetaris instance.
+- On Zetaris, each query takes about 3 seconds on a laptop-sized engine, so one investigation takes about two minutes there (under a second on DuckDB). The run record above covers three requests, not the whole evaluation; the full evaluations ran on DuckDB with the same SQL.
 
 ## Existing components
 

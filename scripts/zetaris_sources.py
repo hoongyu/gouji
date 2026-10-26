@@ -95,7 +95,8 @@ def load(data: Path) -> None:
     files = {
         "contracts.parquet": (f"read_parquet('{d}/contracts.parquet')", "(FORMAT PARQUET)"),
         "registry.csv": (f"read_csv('{d}/registry.csv', header=true, all_varchar=true)", "(FORMAT CSV, HEADER)"),
-        "mailbox.json": (f"read_json_auto('{d}/mailbox.jsonl', format='newline_delimited')", "(FORMAT JSON)"),
+        # one JSON array: Zetaris reads JSON files as a single document, so line-delimited JSON gives one row
+        "mailbox.json": (f"read_json_auto('{d}/mailbox.jsonl', format='newline_delimited')", "(FORMAT JSON, ARRAY true)"),
     }
     for name, (rel, fmt) in files.items():
         con.execute(f"COPY (SELECT {_iso_select(con, rel)} FROM {rel}) TO 's3://{BUCKET}/{name}' {fmt}")
@@ -107,12 +108,13 @@ def statements(mask: bool) -> list[str]:
     pg_pw = "<GOUJI_PG_PASSWORD>" if mask else c["GOUJI_PG_PASSWORD"]
     s3_pw = "<GOUJI_S3_PASSWORD>" if mask else c["GOUJI_S3_PASSWORD"]
     out = []
-    for db, label in (("erp", "Veltrona ERP"), ("vendor_master", "Veltrona vendor master")):
-        out += [f'CREATE DATASOURCE {db} DESCRIBE BY "{label} (PostgreSQL)" OPTIONS ('
+    # Zetaris accepts only letters, digits and _ . - , in a description
+    for db, label in (("erp", "Veltrona-ERP-PostgreSQL"), ("vendor_master", "Veltrona-vendor-master-PostgreSQL")):
+        out += [f'CREATE DATASOURCE {db} DESCRIBE BY "{label}" OPTIONS ('
                 f'jdbcdriver "org.postgresql.Driver", jdbcurl "jdbc:postgresql://{HOST_FROM_ZETARIS}:5433/{db}", '
                 f'username "gouji", password "{pg_pw}", fetchsize "1000")',
                 f"REGISTER DATASOURCE TABLES FROM {db}"]
-    out.append('CREATE LIGHTNING DATABASE documents DESCRIBE BY "Contracts, AP mailbox and company registry (files on S3)"')
+    out.append('CREATE LIGHTNING DATABASE documents DESCRIBE BY "Contracts-AP-mailbox-and-company-registry-files-on-S3"')
     s3 = (f'awsAccessKeyId "gouji", awsSecretAccessKey "{s3_pw}", s3Endpoint "http://{HOST_FROM_ZETARIS}:9000", '
           'useS3PathStyleAccess "true"')
     out += [f'CREATE LIGHTNING FILESTORE TABLE contracts FROM documents FORMAT PARQUET OPTIONS ('

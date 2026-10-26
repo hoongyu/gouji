@@ -59,7 +59,9 @@ def evaluate(data_dir: Path, logs_dir: Path, run_id: str, *, planner: Generator 
     return {"run_id": run_id, "backend": h.name, "now": meta["now"], "seed": meta["seed"],
             "planner": "model" if planner else "scripted", "reporter": "model" if reporter else "scripted",
             "guard": "patterns + model screen" if guard else "patterns",
-            "summary": summary, "cases": rows, "results": results}
+            "summary": summary, "cases": rows, "results": results,
+            "query_log": [{"sql": q.sql, "params": list(q.params), "rows": q.rows, "ms": round(q.ms, 1),
+                           "systems": list(q.systems)} for q in h.log]}
 
 
 def _summarise(rows: list[dict[str, Any]]) -> dict[str, Any]:

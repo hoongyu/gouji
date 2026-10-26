@@ -86,14 +86,18 @@ def main() -> None:
         if not report["results"]:
             sys.exit(f"no case or invoice called {args.target!r}; see {data}/cases.json")
         result = next(iter(report["results"].values()))
-        path = OUT / f"{result['inv_id']}.json"
+        backend = report["backend"]
+        path = OUT / (f"{result['inv_id']}.json" if backend == "local-duckdb" else f"{backend}-run/{result['inv_id']}.json")
+        path.parent.mkdir(exist_ok=True)
+        (path.parent / f"{result['inv_id']}-queries.json").write_text(
+            json.dumps({"backend": backend, "queries": report["query_log"]}, indent=2, default=str), encoding="utf-8")
         path.write_text(json.dumps(result, indent=2, default=str, ensure_ascii=False), encoding="utf-8")
         print(f"{result['inv_id']}: {result['decision']} -> {result['recommendation']}")
         print(result["brief"]["text"])
         print(f"trace: logs/trace-{run_id}.jsonl  result: {path}")
         return
     tag = args.tag or ("live" if args.live else "sample")
-    (OUT / f"eval-{tag}.json").write_text(json.dumps({k: v for k, v in report.items() if k != "results"},
+    (OUT / f"eval-{tag}.json").write_text(json.dumps({k: v for k, v in report.items() if k not in ("results", "query_log")},
                                                      indent=2, default=str), encoding="utf-8")
     (OUT / f"eval-{tag}.md").write_text(to_markdown(report), encoding="utf-8")
     print(to_markdown(report))

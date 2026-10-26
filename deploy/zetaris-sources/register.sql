@@ -2,15 +2,15 @@
 -- `python scripts/zetaris_sources.py sql`; `register` runs the same statements with the real local passwords
 -- from deploy/zetaris-sources/.env (git-ignored). Send one statement per call.
 
-CREATE DATASOURCE erp DESCRIBE BY "Veltrona ERP (PostgreSQL)" OPTIONS (jdbcdriver "org.postgresql.Driver", jdbcurl "jdbc:postgresql://host.docker.internal:5433/erp", username "gouji", password "<GOUJI_PG_PASSWORD>", fetchsize "1000");
+CREATE DATASOURCE erp DESCRIBE BY "Veltrona-ERP-PostgreSQL" OPTIONS (jdbcdriver "org.postgresql.Driver", jdbcurl "jdbc:postgresql://host.docker.internal:5433/erp", username "gouji", password "<GOUJI_PG_PASSWORD>", fetchsize "1000");
 
 REGISTER DATASOURCE TABLES FROM erp;
 
-CREATE DATASOURCE vendor_master DESCRIBE BY "Veltrona vendor master (PostgreSQL)" OPTIONS (jdbcdriver "org.postgresql.Driver", jdbcurl "jdbc:postgresql://host.docker.internal:5433/vendor_master", username "gouji", password "<GOUJI_PG_PASSWORD>", fetchsize "1000");
+CREATE DATASOURCE vendor_master DESCRIBE BY "Veltrona-vendor-master-PostgreSQL" OPTIONS (jdbcdriver "org.postgresql.Driver", jdbcurl "jdbc:postgresql://host.docker.internal:5433/vendor_master", username "gouji", password "<GOUJI_PG_PASSWORD>", fetchsize "1000");
 
 REGISTER DATASOURCE TABLES FROM vendor_master;
 
-CREATE LIGHTNING DATABASE documents DESCRIBE BY "Contracts, AP mailbox and company registry (files on S3)";
+CREATE LIGHTNING DATABASE documents DESCRIBE BY "Contracts-AP-mailbox-and-company-registry-files-on-S3";
 
 CREATE LIGHTNING FILESTORE TABLE contracts FROM documents FORMAT PARQUET OPTIONS (path "s3a://gouji/contracts.parquet", awsAccessKeyId "gouji", awsSecretAccessKey "<GOUJI_S3_PASSWORD>", s3Endpoint "http://host.docker.internal:9000", useS3PathStyleAccess "true");
 

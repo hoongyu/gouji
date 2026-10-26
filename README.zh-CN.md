@@ -131,6 +131,20 @@ uv run pytest                                   # 测试
 
 其他路由：`GET /brief/{inv_id}`（一页简报）、`GET /row/{table}/{pk}`（从源系统重新读取的被引用行）、`GET /health`。
 
+## 在 Zetaris 上运行
+
+样例模式下，核查在 DuckDB 上读 `data/` 里的文件；在 Zetaris 上，同样的 SQL 跨五个系统联邦执行：两个 PostgreSQL 库，加上 S3 兼容存储里的三个文件。仓库里不需要任何凭据：脚本把本地密码生成到被 git 忽略的文件里，Zetaris 的 API key 留在你自己的 `.env`。
+
+```bash
+uv run python scripts/zetaris_sources.py up        # 启动 PostgreSQL（5433）和 S3 存储（9000）
+uv run python scripts/zetaris_sources.py load      # ERP、供应商主数据进 PostgreSQL，三个文件进 S3
+uv run python scripts/zetaris_sources.py register  # 执行 deploy/zetaris-sources/register.sql 里的注册语句
+uv run python scripts/zetaris_sources.py check     # SELECT 1、SHOW LIGHTNING DATABASES、核对行数
+uv run python run.py case INV-5567 --backend zetaris
+```
+
+**运行记录。** 2026-10-27 00:20 至 00:35（柏林时间），本机 Zetaris 2.4.3（Docker，黑客松版 v2.4.3.1），开发集（种子 20261022）。九张表全部注册，Zetaris 上的行数与本地文件一致（86、84、90、42、20、12、18、63、20）。三笔申请的每条查询都走 Zetaris，结论和证据分级与 DuckDB 完全一致：INV-5567（冒名者：ASK，按疑似诈骗拦下）、INV-5579（高出合同价 18%：ASK，请供应商更正）、INV-5559（真实的银行变更：ALLOW，签发执行合约）。共 125 条联邦查询（46、40、39 条），每条约 3 秒。每条语句及其行数和耗时见 [`output_examples/zetaris-run/`](output_examples/zetaris-run/)。途中发现一点：Zetaris 把 JSON 文件当作一个整体文档读取，所以邮箱存成 JSON 数组。
+
 ## 示例
 
 [`input_examples/`](input_examples/) 和 [`output_examples/`](output_examples/) 里有三笔申请及其结果：
@@ -198,7 +212,7 @@ Guard ──► Planner ──► Investigator ──► Verifier ──► Worl
 - 案例构成和数量是为一个虚构买方设计的，不是实地数据。这些数字说明核查在这些案例上能抓到什么，不代表诈骗发生率。
 - 守卫的模式匹配有意做得很窄。遇到没见过的文本时，它依赖模型复核，而模型复核也会出错。
 - PayProof 负责拦下付款并说明原因，不负责联系供应商。按档案号码回拨仍然是人的步骤，本来也应该如此。
-- Zetaris 适配器按官方文档的 REST API 编写，还没有对真实 Zetaris 实例跑过。
+- 在 Zetaris 上，笔记本规格的引擎每条查询约 3 秒，一次调查约两分钟（DuckDB 上不到一秒）。下面的运行记录覆盖三笔申请，不是整套评测；整套评测用同样的 SQL 在 DuckDB 上跑。
 
 ## 已有组件
 
