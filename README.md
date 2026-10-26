@@ -135,13 +135,13 @@ Other routes: `GET /brief/{inv_id}` (the one-page brief), `GET /row/{table}/{pk}
 
 In sample mode the checks run on DuckDB over the files in `data/`. On Zetaris the same SQL runs federated across the five systems where they live: two PostgreSQL databases and three files on S3-compatible storage. Nothing here needs credentials in the repository: the scripts generate local passwords into a git-ignored file, and the Zetaris API key stays in your `.env`.
 
-**What you need.** A running Zetaris instance (the local Docker install from [Zetaris getting-started](https://zetaris.github.io/getting-started), or an AWS cluster); Docker, for the stand-in PostgreSQL and MinIO; and in `.env` your `ZETARIS_REST_URL` (local default `http://localhost:8888/api/v1.0`), `ZETARIS_ORG_ID` and an API key `ZETARIS_API_KEY` created under Management > API Tokens.
+**What you need.** A running Zetaris instance (the local Docker install from [Zetaris getting-started](https://zetaris.github.io/getting-started), or an AWS cluster); Docker, for the stand-in PostgreSQL and S3 store (Adobe S3Mock); and in `.env` your `ZETARIS_REST_URL` (local default `http://localhost:8888/api/v1.0`), `ZETARIS_ORG_ID` and an API key `ZETARIS_API_KEY` created under Management > API Tokens.
 
 **Steps, in order.**
 
 ```bash
-uv run python scripts/zetaris_sources.py up        # start PostgreSQL (5433) and MinIO (9000), local passwords
-uv run python scripts/zetaris_sources.py load      # ERP and vendor master into PostgreSQL, the documents into MinIO
+uv run python scripts/zetaris_sources.py up        # start PostgreSQL (5433) and an S3 store (9000), local passwords
+uv run python scripts/zetaris_sources.py load      # ERP and vendor master into PostgreSQL, the documents into S3
 uv run python scripts/zetaris_sources.py register  # the statements in deploy/zetaris-sources/register.sql
 uv run python scripts/zetaris_sources.py check     # SELECT 1, SHOW LIGHTNING DATABASES, row counts vs local
 uv run python run.py case INV-5567 --backend zetaris
@@ -170,7 +170,7 @@ The invoice comes from a Latvian registration while the order, the vendor master
 
 **Run record.** RUN_RECORD
 
-**Objects created, and cleanup.** In Zetaris: datasources `erp` and `vendor_master` with their registered tables, and Lightning database `documents` with the file tables `contracts`, `registry` and `mailbox`. In Docker: the `postgres` and `minio` containers of `deploy/zetaris-sources` and their volumes. To remove them: `DROP DATASOURCE erp` and `DROP DATASOURCE vendor_master` in the Zetaris SQL Editor, drop the `documents` tables there, then `docker compose down -v` in `deploy/zetaris-sources`.
+**Objects created, and cleanup.** In Zetaris: datasources `erp` and `vendor_master` with their registered tables, and Lightning database `documents` with the file tables `contracts`, `registry` and `mailbox`. In Docker: the `postgres` and `s3` containers of `deploy/zetaris-sources` and the PostgreSQL volume. To remove them: `DROP DATASOURCE erp` and `DROP DATASOURCE vendor_master` in the Zetaris SQL Editor, drop the `documents` tables there, then `docker compose down -v` in `deploy/zetaris-sources`.
 
 ## Examples
 
