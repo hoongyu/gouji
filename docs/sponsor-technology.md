@@ -18,7 +18,7 @@ PayProof investigates a payment request before money moves: it checks across fiv
 ## NVIDIA: Nemotron as the red team
 
 - **Where:** `gouji/redteam.py`, `data/heldout/`.
-- **How:** NVIDIA Nemotron (`nvidia/nemotron-3.5-lightning-30b-a3b` on build.nvidia.com) wrote the held-out set: impostor invoices, bank-change requests from look-alike domains, eight new prompt injections, eight honest sentences meant to trip a naive filter, and four genuine bank-change notices, dropped into 44 requests in a world with its own seed. The set was sealed (prompts, raw output and a SHA-256 of every file in `manifest.json`, commit 8bddf05) before it was evaluated once; CI re-checks the seal on every change.
+- **How:** NVIDIA Nemotron (`nvidia/nemotron-3.5-lightning-30b-a3b` on build.nvidia.com) wrote the held-out set: impostor invoices, bank-change requests from look-alike domains, eight new prompt injections, eight honest sentences meant to trip a naive filter, and four genuine bank-change notices, dropped into 44 requests in a world with its own seed. The set was sealed (prompts, raw output and a SHA-256 of every file in `manifest.json`, commit efa9fec) before it was evaluated once; CI re-checks the seal on every change.
 - **Why it matters:** the checks were written with one model's help; testing them on text a different model wrote, which their authors never read before the run, is what makes the numbers mean something. Result: a payee list alone paid 15 of 24 attacks; PayProof with its model screen paid 2, and interrupted none of the 20 normal payments.
 
 ## Cursor

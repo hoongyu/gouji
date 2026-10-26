@@ -64,7 +64,7 @@ Open Agent Hackathon 2026 · 赛道 2：The Agent That Can Explain Why。代码�
 
 ### 留出集（44 笔申请，文本由 NVIDIA Nemotron 撰写）
 
-封存的留出集（commit 8bddf05）上，每种配置只跑了一次，中间没有改过代码。
+封存的留出集（commit efa9fec）上，每种配置只跑了一次，中间没有改过代码。
 
 | | B1：只有授权书 | B3：PayProof，只用模式匹配 | B3：PayProof，加模型复核 |
 |---|---|---|---|
@@ -191,7 +191,7 @@ Guard ──► Planner ──► Investigator ──► Verifier ──► Worl
 全部是虚构并自动生成的：买方（Veltrona Drives GmbH）、14 家供应商，以及它们的订单、收货、发票、付款、合同、邮件和注册信息。域名使用保留后缀 `.example`，每个 IBAN 的校验位都是 `00`，ISO 13616 从不签发这样的号码，所以生成的账户不可能是真实账户。
 
 - `data/sample/`：开发集，种子 20261022。用 `python run.py generate` 重建。
-- `data/heldout/`：留出集，种子 20261024，文本由 Nemotron 撰写。`manifest.json` 记录了提示词、模型、温度和每个文件的 SHA-256。这份数据在第一次评测之前就已提交（8bddf05）。
+- `data/heldout/`：留出集，种子 20261024，文本由 Nemotron 撰写。`manifest.json` 记录了提示词、模型、温度和每个文件的 SHA-256。这份数据在第一次评测之前就已提交（efa9fec）。
 
 ## 局限
 
