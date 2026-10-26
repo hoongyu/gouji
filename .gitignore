@@ -16,3 +16,7 @@ logs/
 # local tool settings
 .claude/
 output_examples/eval-ci-*
+
+# demo video: raw takes and renders stay local
+video/input/
+video/out/
