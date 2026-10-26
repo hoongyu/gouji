@@ -103,9 +103,9 @@ def load(data: Path) -> None:
 
 
 def statements(mask: bool) -> list[str]:
-    c = creds()
-    pg_pw = "********" if mask else c["GOUJI_PG_PASSWORD"]
-    s3_pw = "********" if mask else c["GOUJI_S3_PASSWORD"]
+    c = {} if mask else creds()
+    pg_pw = "<GOUJI_PG_PASSWORD>" if mask else c["GOUJI_PG_PASSWORD"]
+    s3_pw = "<GOUJI_S3_PASSWORD>" if mask else c["GOUJI_S3_PASSWORD"]
     out = []
     for db, label in (("erp", "Veltrona ERP"), ("vendor_master", "Veltrona vendor master")):
         out += [f'CREATE DATASOURCE {db} DESCRIBE BY "{label} (PostgreSQL)" OPTIONS ('
