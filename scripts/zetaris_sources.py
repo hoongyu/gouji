@@ -1,7 +1,7 @@
 """Put the five sample systems where Zetaris can federate them, register them, and check the result.
 
-    python scripts/zetaris_sources.py up        generate local passwords, start PostgreSQL and MinIO
-    python scripts/zetaris_sources.py load      ERP and vendor master into PostgreSQL, documents into MinIO
+    python scripts/zetaris_sources.py up        generate local passwords, start PostgreSQL and an S3 store
+    python scripts/zetaris_sources.py load      ERP and vendor master into PostgreSQL, documents into S3
     python scripts/zetaris_sources.py sql       print the Zetaris registration statements (passwords masked)
     python scripts/zetaris_sources.py register  run them on Zetaris through the REST API
     python scripts/zetaris_sources.py check     SELECT 1, SHOW LIGHTNING DATABASES, row counts against local
@@ -50,7 +50,7 @@ def up() -> None:
         ENV.write_text(f"GOUJI_PG_PASSWORD={secrets.token_urlsafe(18)}\nGOUJI_S3_PASSWORD={secrets.token_urlsafe(18)}\n",
                        encoding="utf-8")
     compose("up", "-d")
-    print("PostgreSQL on localhost:5433, MinIO on localhost:9000 (console 9001); passwords in deploy/zetaris-sources/.env")
+    print("PostgreSQL on localhost:5433, S3 on localhost:9000; passwords in deploy/zetaris-sources/.env")
 
 
 def _iso_select(con: duckdb.DuckDBPyConnection, relation: str) -> str:
@@ -73,12 +73,14 @@ def load(data: Path) -> None:
     for ext in ("postgres", "httpfs"):
         con.execute(f"INSTALL {ext}; LOAD {ext}")
     pg = f"host=localhost port=5433 user=gouji password={c['GOUJI_PG_PASSWORD']}"
-    con.execute(f"ATTACH '{pg} dbname=postgres' AS pgadmin (TYPE postgres)")
     for db, (file, tables) in DATABASES.items():
-        try:
-            con.execute(f"CALL postgres_execute('pgadmin', 'CREATE DATABASE {db}')")
-        except duckdb.Error:
-            pass  # already there
+        # CREATE DATABASE cannot run inside a transaction, so it goes through psql in the container
+        exists = subprocess.run(["docker", "compose", "exec", "-T", "postgres", "psql", "-U", "gouji", "-d", "postgres",
+                                 "-tAc", f"SELECT 1 FROM pg_database WHERE datname = '{db}'"],
+                                cwd=HERE, capture_output=True, text=True, check=True).stdout.strip()
+        if not exists:
+            subprocess.run(["docker", "compose", "exec", "-T", "postgres", "psql", "-U", "gouji", "-d", "postgres",
+                            "-c", f"CREATE DATABASE {db}"], cwd=HERE, check=True, capture_output=True)
         con.execute(f"ATTACH '{(data / file).as_posix()}' AS src_{db} (READ_ONLY)")
         con.execute(f"ATTACH '{pg} dbname={db}' AS pg_{db} (TYPE postgres)")
         for t in tables:
@@ -86,9 +88,7 @@ def load(data: Path) -> None:
             con.execute(f"CREATE TABLE pg_{db}.public.{t} AS SELECT {_iso_select(con, f'src_{db}.{t}')} FROM src_{db}.{t}")
             print(f"postgres {db}.{t}: {con.execute(f'SELECT count(*) FROM pg_{db}.public.{t}').fetchone()[0]} rows")
 
-    subprocess.run(["docker", "compose", "exec", "-T", "minio", "sh", "-c",
-                    f'mc alias set local http://localhost:9000 gouji "$MINIO_ROOT_PASSWORD" >/dev/null && '
-                    f"mc mb -p local/{BUCKET}"], cwd=HERE, check=True)
+    # the S3 store creates the bucket at startup (docker-compose.yml)
     con.execute(f"CREATE SECRET s3 (TYPE s3, KEY_ID 'gouji', SECRET '{c['GOUJI_S3_PASSWORD']}', "
                 "ENDPOINT 'localhost:9000', URL_STYLE 'path', USE_SSL false, REGION 'us-east-1')")
     d = data.resolve().as_posix()
@@ -143,8 +143,22 @@ def check(data: Path) -> None:
         print(f"{t:<16} zetaris {n!s:<8} local {local.query(f'SELECT COUNT(*) AS n FROM {{{t}}}')[0]['n']}")
 
 
+def _masked(exc: BaseException) -> str:
+    text = str(exc)
+    for secret in creds().values() if ENV.exists() else ():
+        text = text.replace(secret, "********")
+    return text
+
+
 def main() -> None:
     load_dotenv(ROOT / ".env")
+    try:
+        _main()
+    except (duckdb.Error, RuntimeError, subprocess.CalledProcessError) as exc:
+        sys.exit(f"{type(exc).__name__}: {_masked(exc)}")
+
+
+def _main() -> None:
     cmd = sys.argv[1] if len(sys.argv) > 1 else ""
     data = ROOT / (sys.argv[2] if len(sys.argv) > 2 else "data/sample")
     if cmd == "up":
