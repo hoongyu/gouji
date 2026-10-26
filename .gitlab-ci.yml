@@ -17,8 +17,9 @@ variables:
   UV_CACHE_DIR: "$CI_PROJECT_DIR/.uv-cache"
 
 default:
-  image: ghcr.io/astral-sh/uv:0.12.0-python3.13-bookworm
+  image: python:3.13-bookworm      # has git, which uv needs to fetch the pinned mandate-engine tag
   before_script:
+    - pip install -q uv==0.12.0
     - uv sync --frozen
   cache:
     key:
@@ -60,7 +61,8 @@ deploy-space:
   stage: deploy
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $HF_TOKEN && $HF_SPACE
-  before_script: []
+  before_script:
+    - pip install -q uv==0.12.0
   script:
     - sh scripts/deploy_space.sh
   environment:
