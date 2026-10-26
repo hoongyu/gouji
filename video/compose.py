@@ -98,7 +98,7 @@ def subtitles(timeline: list[tuple[float, float, str]]) -> str:
     cues = []
     for start, speech, text in timeline:
         parts = []
-        for s in re.split(r"(?<=[.!?:])\s+", text):
+        for s in re.split(r"(?<=[.!?])\s+", text):
             while len(s) > 90 and ", " in s[30:]:
                 cut = s.index(", ", 30) + 1
                 parts.append(s[:cut].strip())
