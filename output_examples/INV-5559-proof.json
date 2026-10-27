@@ -1,0 +1,414 @@
+{
+  "proof_version": 1,
+  "inv_id": "INV-5559",
+  "run_id": "20261027T100238Z",
+  "judged_at": "2026-10-20T09:00:00+00:00",
+  "backend": "local-duckdb",
+  "decision": "allow",
+  "payment": {
+    "account": "DE00SYNB00000000000205",
+    "amount_minor": 386120,
+    "currency": "EUR"
+  },
+  "policy": {
+    "file": "policy/ap-payments.sample.json",
+    "mandate_id": "ap-payments",
+    "version": 2,
+    "sha256": "3086c1d774b388827cc3fb390ab523f3a4e54a36f217c721dd7ef53eb038ff80"
+  },
+  "agent": {
+    "decision": "allow",
+    "matched_clauses": [
+      "P2"
+    ],
+    "facts_hash": "38dd543493065623c0d7c53405fdcb799a821aca0b166cbd092dee397823496a",
+    "grades": {
+      "identity": "verified",
+      "account": "verified",
+      "price": "verified",
+      "receipt": "verified",
+      "duplicate": "verified",
+      "channel": "verified",
+      "injection": "verified"
+    },
+    "findings": [
+      {
+        "check": "C7",
+        "aspect": "injection",
+        "polarity": "support",
+        "claim": "Neither the invoice nor the e-mail addresses the AI reviewer.",
+        "citations": [
+          {
+            "table": "invoices",
+            "pk": "INV-5559",
+            "column": "notes",
+            "value": "",
+            "system": "erp"
+          }
+        ],
+        "fid": "F1",
+        "verified": true
+      },
+      {
+        "check": "C1",
+        "aspect": "identity",
+        "polarity": "support",
+        "claim": "The invoice issuer DE-SYN-41120 is the counterparty of contract C-105.",
+        "citations": [
+          {
+            "table": "invoices",
+            "pk": "INV-5559",
+            "column": "issuer_reg_no",
+            "value": "DE-SYN-41120",
+            "system": "erp"
+          },
+          {
+            "table": "contracts",
+            "pk": "C-105",
+            "column": "vendor_reg_no",
+            "value": "DE-SYN-41120",
+            "system": "contracts"
+          }
+        ],
+        "fid": "F2",
+        "verified": true
+      },
+      {
+        "check": "C1",
+        "aspect": "identity",
+        "polarity": "support",
+        "claim": "The vendor master records V-105 (Quorvane Cables GmbH) under the same registration number DE-SYN-41120.",
+        "citations": [
+          {
+            "table": "vendors",
+            "pk": "V-105",
+            "column": "reg_no",
+            "value": "DE-SYN-41120",
+            "system": "vendor_master"
+          }
+        ],
+        "fid": "F3",
+        "verified": true
+      },
+      {
+        "check": "C2",
+        "aspect": "account",
+        "polarity": "support",
+        "claim": "The account on the invoice is the one the vendor master holds for V-105.",
+        "citations": [
+          {
+            "table": "invoices",
+            "pk": "INV-5559",
+            "column": "account_on_invoice",
+            "value": "DE00SYNB00000000000205",
+            "system": "erp"
+          },
+          {
+            "table": "vendors",
+            "pk": "V-105",
+            "column": "account",
+            "value": "DE00SYNB00000000000205",
+            "system": "vendor_master"
+          }
+        ],
+        "fid": "F4",
+        "verified": true
+      },
+      {
+        "check": "C2",
+        "aspect": "account",
+        "polarity": "support",
+        "claim": "The account is held in DE, where the contracted supplier is registered.",
+        "citations": [
+          {
+            "table": "invoices",
+            "pk": "INV-5559",
+            "column": "account_on_invoice",
+            "value": "DE00SYNB00000000000205",
+            "system": "erp"
+          },
+          {
+            "table": "contracts",
+            "pk": "C-105",
+            "column": "jurisdiction",
+            "value": "DE",
+            "system": "contracts"
+          }
+        ],
+        "fid": "F5",
+        "verified": true
+      },
+      {
+        "check": "C2",
+        "aspect": "account",
+        "polarity": "support",
+        "claim": "The account was changed 10 days ago and the change was confirmed by callback.",
+        "citations": [
+          {
+            "table": "vendor_changes",
+            "pk": "CHG-11",
+            "column": "callback_verified",
+            "value": true,
+            "system": "vendor_master"
+          }
+        ],
+        "fid": "F6",
+        "verified": true
+      },
+      {
+        "check": "C2",
+        "aspect": "account",
+        "polarity": "info",
+        "claim": "This account first appeared 12 days ago in an e-mail from quorvane.example.",
+        "citations": [
+          {
+            "table": "mailbox",
+            "pk": "M-117",
+            "column": "from_domain",
+            "value": "quorvane.example",
+            "system": "mailbox"
+          }
+        ],
+        "fid": "F7",
+        "verified": true
+      },
+      {
+        "check": "C3",
+        "aspect": "price",
+        "polarity": "support",
+        "claim": "The unit price EUR 19.60 matches contract C-105 (EUR 19.60).",
+        "citations": [
+          {
+            "table": "invoices",
+            "pk": "INV-5559",
+            "column": "unit_price_minor",
+            "value": 1960,
+            "system": "erp"
+          },
+          {
+            "table": "contracts",
+            "pk": "C-105",
+            "column": "unit_price_minor",
+            "value": 1960,
+            "system": "contracts"
+          }
+        ],
+        "fid": "F8",
+        "verified": true
+      },
+      {
+        "check": "C4",
+        "aspect": "receipt",
+        "polarity": "support",
+        "claim": "197 units were received against PO-7759; the invoice bills 197.",
+        "citations": [
+          {
+            "table": "invoices",
+            "pk": "INV-5559",
+            "column": "qty",
+            "value": 197,
+            "system": "erp"
+          },
+          {
+            "table": "purchase_orders",
+            "pk": "PO-7759",
+            "column": "qty",
+            "value": 197,
+            "system": "erp"
+          },
+          {
+            "table": "goods_receipts",
+            "pk": "GR-8859",
+            "column": "qty",
+            "value": 197,
+            "system": "erp"
+          }
+        ],
+        "fid": "F9",
+        "verified": true
+      },
+      {
+        "check": "C5",
+        "aspect": "duplicate",
+        "polarity": "support",
+        "claim": "No earlier payment exists for PO-7759 or under a similar invoice number.",
+        "citations": [
+          {
+            "table": "invoices",
+            "pk": "INV-5559",
+            "column": "po_ref",
+            "value": "PO-7759",
+            "system": "erp"
+          }
+        ],
+        "fid": "F10",
+        "verified": true
+      },
+      {
+        "check": "C6",
+        "aspect": "channel",
+        "polarity": "support",
+        "claim": "The invoice came from quorvane.example, a domain on file for V-105.",
+        "citations": [
+          {
+            "table": "mailbox",
+            "pk": "M-118",
+            "column": "from_domain",
+            "value": "quorvane.example",
+            "system": "mailbox"
+          },
+          {
+            "table": "vendors",
+            "pk": "V-105",
+            "column": "known_domains",
+            "value": "quorvane.example",
+            "system": "vendor_master"
+          }
+        ],
+        "fid": "F11",
+        "verified": true
+      }
+    ],
+    "alerts": [],
+    "evidence_root": "8a07e7069954995e92422efcf0491f6ff5e74be96d71273074caa3f5432437e9",
+    "models": {
+      "guard": false,
+      "planner": false,
+      "reporter": false
+    }
+  },
+  "notary": {
+    "decision": "allow",
+    "refusal": null,
+    "queries": 35,
+    "cells": [
+      [
+        "contracts",
+        "C-105",
+        "jurisdiction",
+        "DE"
+      ],
+      [
+        "contracts",
+        "C-105",
+        "unit_price_minor",
+        "1960"
+      ],
+      [
+        "contracts",
+        "C-105",
+        "vendor_reg_no",
+        "DE-SYN-41120"
+      ],
+      [
+        "goods_receipts",
+        "GR-8859",
+        "qty",
+        "197"
+      ],
+      [
+        "invoices",
+        "INV-5559",
+        "account_on_invoice",
+        "DE00SYNB00000000000205"
+      ],
+      [
+        "invoices",
+        "INV-5559",
+        "issuer_reg_no",
+        "DE-SYN-41120"
+      ],
+      [
+        "invoices",
+        "INV-5559",
+        "notes",
+        ""
+      ],
+      [
+        "invoices",
+        "INV-5559",
+        "po_ref",
+        "PO-7759"
+      ],
+      [
+        "invoices",
+        "INV-5559",
+        "qty",
+        "197"
+      ],
+      [
+        "invoices",
+        "INV-5559",
+        "unit_price_minor",
+        "1960"
+      ],
+      [
+        "mailbox",
+        "M-117",
+        "from_domain",
+        "quorvane.example"
+      ],
+      [
+        "mailbox",
+        "M-118",
+        "from_domain",
+        "quorvane.example"
+      ],
+      [
+        "purchase_orders",
+        "PO-7759",
+        "qty",
+        "197"
+      ],
+      [
+        "vendor_changes",
+        "CHG-11",
+        "callback_verified",
+        "True"
+      ],
+      [
+        "vendors",
+        "V-105",
+        "account",
+        "DE00SYNB00000000000205"
+      ],
+      [
+        "vendors",
+        "V-105",
+        "known_domains",
+        "quorvane.example"
+      ],
+      [
+        "vendors",
+        "V-105",
+        "reg_no",
+        "DE-SYN-41120"
+      ]
+    ],
+    "evidence_root": "8a07e7069954995e92422efcf0491f6ff5e74be96d71273074caa3f5432437e9",
+    "key": "2c9d7b4eb936d38e"
+  },
+  "contract": {
+    "contract_id": "EC-125ff133",
+    "action": "pay_invoice",
+    "inv_id": "INV-5559",
+    "facts_hash": "38dd543493065623c0d7c53405fdcb799a821aca0b166cbd092dee397823496a",
+    "evidence_root": "8a07e7069954995e92422efcf0491f6ff5e74be96d71273074caa3f5432437e9",
+    "policy_sha256": "3086c1d774b388827cc3fb390ab523f3a4e54a36f217c721dd7ef53eb038ff80",
+    "decision": "allow",
+    "matched_clauses": [
+      "P2"
+    ],
+    "evidence_cells": 17,
+    "mandate_id": "ap-payments",
+    "mandate_version": 2,
+    "issued_at": "2026-10-20T09:00:00Z",
+    "expires_at": "2026-10-20T09:15:00Z",
+    "notary_key": "2c9d7b4eb936d38e",
+    "signature": "6f5c8a0308b7aaaef5e57ae478a88882a69f9014458db3974cc12c73dcd538555a210a1fcda64e121034fe13bdaa0fb09e02b3a2551ecc858ab27f4da8545204"
+  },
+  "gateway": {
+    "status": "paid",
+    "reason": null
+  }
+}

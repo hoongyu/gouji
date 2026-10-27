@@ -7,7 +7,7 @@
         "INV-5559"
       ],
       "rows": 1,
-      "ms": 3250.9,
+      "ms": 2379.9,
       "systems": [
         "erp"
       ]
@@ -18,7 +18,7 @@
         "INV-5559"
       ],
       "rows": 1,
-      "ms": 2628.1,
+      "ms": 2314.4,
       "systems": [
         "erp"
       ]
@@ -29,7 +29,7 @@
         "INV-5559"
       ],
       "rows": 1,
-      "ms": 3135.8,
+      "ms": 2513.5,
       "systems": [
         "erp",
         "mailbox"
@@ -41,7 +41,7 @@
         "INV-5559"
       ],
       "rows": 1,
-      "ms": 3051.3,
+      "ms": 2490.2,
       "systems": [
         "erp",
         "mailbox"
@@ -53,7 +53,7 @@
         "INV-5559"
       ],
       "rows": 1,
-      "ms": 4178.9,
+      "ms": 2830.8,
       "systems": [
         "contracts",
         "erp",
@@ -66,7 +66,7 @@
         "Quorvane Cables GmbH"
       ],
       "rows": 1,
-      "ms": 2669.6,
+      "ms": 2360.9,
       "systems": [
         "registry"
       ]
@@ -77,7 +77,7 @@
         "INV-5559"
       ],
       "rows": 1,
-      "ms": 4080.7,
+      "ms": 2905.8,
       "systems": [
         "contracts",
         "erp",
@@ -91,7 +91,7 @@
         "2026-09-20T09:00:00+00:00"
       ],
       "rows": 1,
-      "ms": 2971.7,
+      "ms": 2327.2,
       "systems": [
         "vendor_master"
       ]
@@ -103,7 +103,7 @@
         "V-105"
       ],
       "rows": 0,
-      "ms": 2826.4,
+      "ms": 2283.1,
       "systems": [
         "vendor_master"
       ]
@@ -114,7 +114,7 @@
         "DE00SYNB00000000000205"
       ],
       "rows": 1,
-      "ms": 3125.2,
+      "ms": 2391.4,
       "systems": [
         "mailbox"
       ]
@@ -125,7 +125,7 @@
         "INV-5559"
       ],
       "rows": 1,
-      "ms": 4378.2,
+      "ms": 2874.8,
       "systems": [
         "contracts",
         "erp",
@@ -138,7 +138,7 @@
         "INV-5559"
       ],
       "rows": 1,
-      "ms": 3339.0,
+      "ms": 2752.7,
       "systems": [
         "erp"
       ]
@@ -149,7 +149,7 @@
         "INV-5559"
       ],
       "rows": 1,
-      "ms": 3125.9,
+      "ms": 2509.4,
       "systems": [
         "erp"
       ]
@@ -162,7 +162,7 @@
         "INV-5559"
       ],
       "rows": 0,
-      "ms": 2792.1,
+      "ms": 2507.6,
       "systems": [
         "erp"
       ]
@@ -173,7 +173,7 @@
         "INV-5559"
       ],
       "rows": 1,
-      "ms": 2552.1,
+      "ms": 2411.1,
       "systems": [
         "erp"
       ]
@@ -184,7 +184,7 @@
         "INV-5559"
       ],
       "rows": 1,
-      "ms": 2549.0,
+      "ms": 2263.9,
       "systems": [
         "erp"
       ]
@@ -195,7 +195,7 @@
         "C-105"
       ],
       "rows": 1,
-      "ms": 2715.1,
+      "ms": 2570.4,
       "systems": [
         "contracts"
       ]
@@ -206,7 +206,7 @@
         "V-105"
       ],
       "rows": 1,
-      "ms": 2441.4,
+      "ms": 2334.8,
       "systems": [
         "vendor_master"
       ]
@@ -217,7 +217,7 @@
         "INV-5559"
       ],
       "rows": 1,
-      "ms": 2482.8,
+      "ms": 2296.0,
       "systems": [
         "erp"
       ]
@@ -228,7 +228,7 @@
         "V-105"
       ],
       "rows": 1,
-      "ms": 2461.8,
+      "ms": 2231.9,
       "systems": [
         "vendor_master"
       ]
@@ -239,7 +239,7 @@
         "INV-5559"
       ],
       "rows": 1,
-      "ms": 2598.1,
+      "ms": 2285.5,
       "systems": [
         "erp"
       ]
@@ -250,7 +250,7 @@
         "C-105"
       ],
       "rows": 1,
-      "ms": 2620.6,
+      "ms": 2399.0,
       "systems": [
         "contracts"
       ]
@@ -261,7 +261,7 @@
         "CHG-11"
       ],
       "rows": 1,
-      "ms": 2442.4,
+      "ms": 2355.3,
       "systems": [
         "vendor_master"
       ]
@@ -272,7 +272,7 @@
         "M-117"
       ],
       "rows": 1,
-      "ms": 2585.7,
+      "ms": 2516.2,
       "systems": [
         "mailbox"
       ]
@@ -283,7 +283,7 @@
         "INV-5559"
       ],
       "rows": 1,
-      "ms": 2435.1,
+      "ms": 2362.8,
       "systems": [
         "erp"
       ]
@@ -294,7 +294,7 @@
         "C-105"
       ],
       "rows": 1,
-      "ms": 2550.6,
+      "ms": 2472.0,
       "systems": [
         "contracts"
       ]
@@ -305,7 +305,7 @@
         "INV-5559"
       ],
       "rows": 1,
-      "ms": 2443.5,
+      "ms": 2255.2,
       "systems": [
         "erp"
       ]
@@ -316,7 +316,7 @@
         "PO-7759"
       ],
       "rows": 1,
-      "ms": 2579.1,
+      "ms": 2225.5,
       "systems": [
         "erp"
       ]
@@ -327,7 +327,7 @@
         "GR-8859"
       ],
       "rows": 1,
-      "ms": 2591.6,
+      "ms": 2232.7,
       "systems": [
         "erp"
       ]
@@ -338,7 +338,7 @@
         "INV-5559"
       ],
       "rows": 1,
-      "ms": 2499.6,
+      "ms": 2314.1,
       "systems": [
         "erp"
       ]
@@ -349,7 +349,7 @@
         "INV-5559"
       ],
       "rows": 1,
-      "ms": 4336.5,
+      "ms": 3256.2,
       "systems": [
         "contracts",
         "erp",
@@ -362,7 +362,7 @@
         "Quorvane Cables GmbH"
       ],
       "rows": 1,
-      "ms": 2549.0,
+      "ms": 2345.3,
       "systems": [
         "registry"
       ]
@@ -373,7 +373,7 @@
         "V-105"
       ],
       "rows": 1,
-      "ms": 2495.6,
+      "ms": 2316.1,
       "systems": [
         "vendor_master"
       ]
@@ -384,7 +384,7 @@
         "INV-5559"
       ],
       "rows": 1,
-      "ms": 4023.9,
+      "ms": 3097.0,
       "systems": [
         "erp",
         "mailbox",
@@ -397,7 +397,7 @@
         "M-118"
       ],
       "rows": 1,
-      "ms": 2570.4,
+      "ms": 2315.9,
       "systems": [
         "mailbox"
       ]
@@ -408,7 +408,7 @@
         "V-105"
       ],
       "rows": 1,
-      "ms": 2503.4,
+      "ms": 2240.0,
       "systems": [
         "vendor_master"
       ]
@@ -419,7 +419,7 @@
         "INV-5559"
       ],
       "rows": 1,
-      "ms": 4638.5,
+      "ms": 2981.4,
       "systems": [
         "contracts",
         "erp",
@@ -432,7 +432,7 @@
         "Quorvane Cables GmbH"
       ],
       "rows": 1,
-      "ms": 2527.9,
+      "ms": 2348.0,
       "systems": [
         "registry"
       ]
@@ -443,7 +443,408 @@
         "V-105"
       ],
       "rows": 1,
-      "ms": 2455.0,
+      "ms": 2273.6,
+      "systems": [
+        "vendor_master"
+      ]
+    },
+    {
+      "sql": "SELECT account_on_invoice, amount_minor FROM erp.invoices WHERE inv_id = ?",
+      "params": [
+        "INV-5559"
+      ],
+      "rows": 1,
+      "ms": 2297.8,
+      "systems": [
+        "erp"
+      ]
+    },
+    {
+      "sql": "SELECT i.inv_id, i.notes, m.email_id, m.body FROM erp.invoices i LEFT JOIN documents.mailbox m ON m.email_id = i.email_id WHERE i.inv_id = ?",
+      "params": [
+        "INV-5559"
+      ],
+      "rows": 1,
+      "ms": 2567.7,
+      "systems": [
+        "erp",
+        "mailbox"
+      ]
+    },
+    {
+      "sql": "SELECT i.inv_id, i.notes, m.email_id, m.body FROM erp.invoices i LEFT JOIN documents.mailbox m ON m.email_id = i.email_id WHERE i.inv_id = ?",
+      "params": [
+        "INV-5559"
+      ],
+      "rows": 1,
+      "ms": 2534.3,
+      "systems": [
+        "erp",
+        "mailbox"
+      ]
+    },
+    {
+      "sql": "SELECT i.inv_id, i.issuer_name, i.issuer_reg_no, p.po_id, v.vendor_id, v.reg_no AS master_reg_no, v.legal_name, c.contract_id, c.vendor_reg_no AS contract_reg_no, c.jurisdiction FROM erp.invoices i JOIN erp.purchase_orders p ON p.po_id = i.po_ref JOIN vendor_master.vendors v ON v.vendor_id = p.vendor_id LEFT JOIN documents.contracts c ON c.vendor_reg_no = v.reg_no AND c.item = p.item AND c.amendment_of IS NULL WHERE i.inv_id = ?",
+      "params": [
+        "INV-5559"
+      ],
+      "rows": 1,
+      "ms": 2988.9,
+      "systems": [
+        "contracts",
+        "erp",
+        "vendor_master"
+      ]
+    },
+    {
+      "sql": "SELECT reg_no, legal_name, jurisdiction, incorporated_on FROM documents.registry WHERE lower(legal_name) = lower(?)",
+      "params": [
+        "Quorvane Cables GmbH"
+      ],
+      "rows": 1,
+      "ms": 2304.5,
+      "systems": [
+        "registry"
+      ]
+    },
+    {
+      "sql": "SELECT i.inv_id, i.account_on_invoice, v.vendor_id, v.account AS master_account, c.contract_id, c.jurisdiction FROM erp.invoices i JOIN erp.purchase_orders p ON p.po_id = i.po_ref JOIN vendor_master.vendors v ON v.vendor_id = p.vendor_id LEFT JOIN documents.contracts c ON c.vendor_reg_no = v.reg_no AND c.item = p.item AND c.amendment_of IS NULL WHERE i.inv_id = ?",
+      "params": [
+        "INV-5559"
+      ],
+      "rows": 1,
+      "ms": 2863.8,
+      "systems": [
+        "contracts",
+        "erp",
+        "vendor_master"
+      ]
+    },
+    {
+      "sql": "SELECT change_id, vendor_id, field, new_value, requested_via, request_ref, callback_verified, changed_at FROM vendor_master.vendor_changes WHERE vendor_id = ? AND field = 'account' AND CAST(changed_at AS STRING) >= ? ORDER BY changed_at DESC",
+      "params": [
+        "V-105",
+        "2026-09-20T09:00:00+00:00"
+      ],
+      "rows": 1,
+      "ms": 2276.9,
+      "systems": [
+        "vendor_master"
+      ]
+    },
+    {
+      "sql": "SELECT vendor_id, legal_name, reg_no, added_at FROM vendor_master.vendors WHERE account = ? AND vendor_id <> ?",
+      "params": [
+        "DE00SYNB00000000000205",
+        "V-105"
+      ],
+      "rows": 0,
+      "ms": 2277.7,
+      "systems": [
+        "vendor_master"
+      ]
+    },
+    {
+      "sql": "SELECT email_id, from_domain, received_at FROM documents.mailbox WHERE contains(body, ?) ORDER BY received_at LIMIT 1",
+      "params": [
+        "DE00SYNB00000000000205"
+      ],
+      "rows": 1,
+      "ms": 2304.1,
+      "systems": [
+        "mailbox"
+      ]
+    },
+    {
+      "sql": "SELECT i.inv_id, i.unit_price_minor AS inv_price, c.contract_id, c.unit_price_minor AS contract_price FROM erp.invoices i JOIN erp.purchase_orders p ON p.po_id = i.po_ref JOIN vendor_master.vendors v ON v.vendor_id = p.vendor_id LEFT JOIN documents.contracts c ON c.vendor_reg_no = v.reg_no AND c.item = p.item  AND CAST(c.valid_from AS STRING) <= CAST(i.received_at AS STRING)  AND CAST(c.valid_to AS STRING) >= CAST(i.received_at AS STRING) WHERE i.inv_id = ? ORDER BY c.valid_from DESC",
+      "params": [
+        "INV-5559"
+      ],
+      "rows": 1,
+      "ms": 2796.0,
+      "systems": [
+        "contracts",
+        "erp",
+        "vendor_master"
+      ]
+    },
+    {
+      "sql": "SELECT i.inv_id, i.qty AS inv_qty, p.po_id, p.qty AS po_qty, g.gr_id, g.qty AS gr_qty FROM erp.invoices i JOIN erp.purchase_orders p ON p.po_id = i.po_ref LEFT JOIN erp.goods_receipts g ON g.po_id = p.po_id WHERE i.inv_id = ?",
+      "params": [
+        "INV-5559"
+      ],
+      "rows": 1,
+      "ms": 2644.9,
+      "systems": [
+        "erp"
+      ]
+    },
+    {
+      "sql": "SELECT i.*, p.vendor_id, p.item AS po_item, p.qty AS po_qty FROM erp.invoices i JOIN erp.purchase_orders p ON p.po_id = i.po_ref WHERE i.inv_id = ?",
+      "params": [
+        "INV-5559"
+      ],
+      "rows": 1,
+      "ms": 2553.7,
+      "systems": [
+        "erp"
+      ]
+    },
+    {
+      "sql": "SELECT o.inv_id, o.amount_minor, o.po_ref, pay.pay_id, pay.paid_at FROM erp.invoices o JOIN erp.payments pay ON pay.inv_id = o.inv_id WHERE o.inv_id <> ? AND (o.po_ref = ? OR ? LIKE CONCAT(o.inv_id, '%'))",
+      "params": [
+        "INV-5559",
+        "PO-7759",
+        "INV-5559"
+      ],
+      "rows": 0,
+      "ms": 2576.8,
+      "systems": [
+        "erp"
+      ]
+    },
+    {
+      "sql": "SELECT i.inv_id, m.email_id, m.from_domain, m.received_at, v.vendor_id, v.known_domains FROM erp.invoices i JOIN documents.mailbox m ON m.email_id = i.email_id JOIN erp.purchase_orders p ON p.po_id = i.po_ref JOIN vendor_master.vendors v ON v.vendor_id = p.vendor_id WHERE i.inv_id = ?",
+      "params": [
+        "INV-5559"
+      ],
+      "rows": 1,
+      "ms": 2971.6,
+      "systems": [
+        "erp",
+        "mailbox",
+        "vendor_master"
+      ]
+    },
+    {
+      "sql": "SELECT * FROM erp.invoices WHERE inv_id = ?",
+      "params": [
+        "INV-5559"
+      ],
+      "rows": 1,
+      "ms": 2267.4,
+      "systems": [
+        "erp"
+      ]
+    },
+    {
+      "sql": "SELECT * FROM erp.invoices WHERE inv_id = ?",
+      "params": [
+        "INV-5559"
+      ],
+      "rows": 1,
+      "ms": 2259.3,
+      "systems": [
+        "erp"
+      ]
+    },
+    {
+      "sql": "SELECT * FROM documents.contracts WHERE contract_id = ?",
+      "params": [
+        "C-105"
+      ],
+      "rows": 1,
+      "ms": 2370.9,
+      "systems": [
+        "contracts"
+      ]
+    },
+    {
+      "sql": "SELECT * FROM vendor_master.vendors WHERE vendor_id = ?",
+      "params": [
+        "V-105"
+      ],
+      "rows": 1,
+      "ms": 2282.2,
+      "systems": [
+        "vendor_master"
+      ]
+    },
+    {
+      "sql": "SELECT * FROM erp.invoices WHERE inv_id = ?",
+      "params": [
+        "INV-5559"
+      ],
+      "rows": 1,
+      "ms": 2234.3,
+      "systems": [
+        "erp"
+      ]
+    },
+    {
+      "sql": "SELECT * FROM vendor_master.vendors WHERE vendor_id = ?",
+      "params": [
+        "V-105"
+      ],
+      "rows": 1,
+      "ms": 2264.1,
+      "systems": [
+        "vendor_master"
+      ]
+    },
+    {
+      "sql": "SELECT * FROM erp.invoices WHERE inv_id = ?",
+      "params": [
+        "INV-5559"
+      ],
+      "rows": 1,
+      "ms": 2384.4,
+      "systems": [
+        "erp"
+      ]
+    },
+    {
+      "sql": "SELECT * FROM documents.contracts WHERE contract_id = ?",
+      "params": [
+        "C-105"
+      ],
+      "rows": 1,
+      "ms": 2346.6,
+      "systems": [
+        "contracts"
+      ]
+    },
+    {
+      "sql": "SELECT * FROM vendor_master.vendor_changes WHERE change_id = ?",
+      "params": [
+        "CHG-11"
+      ],
+      "rows": 1,
+      "ms": 2256.6,
+      "systems": [
+        "vendor_master"
+      ]
+    },
+    {
+      "sql": "SELECT * FROM documents.mailbox WHERE email_id = ?",
+      "params": [
+        "M-117"
+      ],
+      "rows": 1,
+      "ms": 2415.7,
+      "systems": [
+        "mailbox"
+      ]
+    },
+    {
+      "sql": "SELECT * FROM erp.invoices WHERE inv_id = ?",
+      "params": [
+        "INV-5559"
+      ],
+      "rows": 1,
+      "ms": 2279.9,
+      "systems": [
+        "erp"
+      ]
+    },
+    {
+      "sql": "SELECT * FROM documents.contracts WHERE contract_id = ?",
+      "params": [
+        "C-105"
+      ],
+      "rows": 1,
+      "ms": 2539.2,
+      "systems": [
+        "contracts"
+      ]
+    },
+    {
+      "sql": "SELECT * FROM erp.invoices WHERE inv_id = ?",
+      "params": [
+        "INV-5559"
+      ],
+      "rows": 1,
+      "ms": 2843.9,
+      "systems": [
+        "erp"
+      ]
+    },
+    {
+      "sql": "SELECT * FROM erp.purchase_orders WHERE po_id = ?",
+      "params": [
+        "PO-7759"
+      ],
+      "rows": 1,
+      "ms": 2272.1,
+      "systems": [
+        "erp"
+      ]
+    },
+    {
+      "sql": "SELECT * FROM erp.goods_receipts WHERE gr_id = ?",
+      "params": [
+        "GR-8859"
+      ],
+      "rows": 1,
+      "ms": 2334.7,
+      "systems": [
+        "erp"
+      ]
+    },
+    {
+      "sql": "SELECT * FROM erp.invoices WHERE inv_id = ?",
+      "params": [
+        "INV-5559"
+      ],
+      "rows": 1,
+      "ms": 2987.0,
+      "systems": [
+        "erp"
+      ]
+    },
+    {
+      "sql": "SELECT * FROM documents.mailbox WHERE email_id = ?",
+      "params": [
+        "M-118"
+      ],
+      "rows": 1,
+      "ms": 2549.8,
+      "systems": [
+        "mailbox"
+      ]
+    },
+    {
+      "sql": "SELECT * FROM vendor_master.vendors WHERE vendor_id = ?",
+      "params": [
+        "V-105"
+      ],
+      "rows": 1,
+      "ms": 2360.7,
+      "systems": [
+        "vendor_master"
+      ]
+    },
+    {
+      "sql": "SELECT i.inv_id, i.issuer_name, i.issuer_reg_no, i.account_on_invoice, i.received_at, i.email_id, p.po_id, v.vendor_id, v.legal_name, v.reg_no, v.country, v.account AS master_account, c.contract_id, c.vendor_reg_no AS contract_reg_no, c.jurisdiction FROM erp.invoices i JOIN erp.purchase_orders p ON p.po_id = i.po_ref JOIN vendor_master.vendors v ON v.vendor_id = p.vendor_id LEFT JOIN documents.contracts c ON c.vendor_reg_no = v.reg_no AND c.item = p.item AND c.amendment_of IS NULL WHERE i.inv_id = ?",
+      "params": [
+        "INV-5559"
+      ],
+      "rows": 1,
+      "ms": 4073.7,
+      "systems": [
+        "contracts",
+        "erp",
+        "vendor_master"
+      ]
+    },
+    {
+      "sql": "SELECT reg_no, legal_name, jurisdiction, incorporated_on FROM documents.registry WHERE lower(legal_name) = lower(?)",
+      "params": [
+        "Quorvane Cables GmbH"
+      ],
+      "rows": 1,
+      "ms": 2550.5,
+      "systems": [
+        "registry"
+      ]
+    },
+    {
+      "sql": "SELECT change_id, new_value, callback_verified, changed_at FROM vendor_master.vendor_changes WHERE vendor_id = ? AND field = 'account' ORDER BY changed_at DESC LIMIT 1",
+      "params": [
+        "V-105"
+      ],
+      "rows": 1,
+      "ms": 2625.5,
       "systems": [
         "vendor_master"
       ]

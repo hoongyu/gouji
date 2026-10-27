@@ -264,6 +264,7 @@
     }
   ],
   "alerts": [],
+  "notary": null,
   "contract": null,
   "payment": null,
   "bypass_probe": {
@@ -271,10 +272,11 @@
     "reason": "no execution contract"
   },
   "brief": {
-    "text": "The unit price EUR 50.15 is 18.0% above contract C-102 (EUR 42.50), beyond the 2% tolerance. [F7]",
+    "text": "The invoice issuer DE-SYN-20557 is the counterparty on contract C-102, and the vendor master records V-102 under the same registration number [F2, F3]. The company registry lists three companies named Krellwerk Fasteners GmbH, including DE-SYN-20557 in Germany [F4]. The invoice bank account is the one the vendor master holds for V-102 and is held in Germany, where the contracted supplier is registered [F5, F6]. The invoice came from krellwerk.example, a domain on file for V-102 [F10]. The invoice bills 400 units, matching the 400 units received against PO-7779, and no earlier payment exists for PO-7779 or under a similar invoice number [F8, F9]. The unit price is EUR 50.15, which is 18.0% above the C-102 price of EUR 42.50 and beyond the 2% tolerance, and that price is the point requiring supplier correction [F7]. Neither the invoice nor the e-mail addresses the AI reviewer [F1].",
     "dropped_sentences": 0,
-    "author": "scripted"
+    "author": "model"
   },
+  "proof_file": "logs/proofs/20261027T100841Z/INV-5579.json",
   "queries": 39,
-  "seconds": 121.41
+  "seconds": 113.883
 }
