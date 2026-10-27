@@ -1,0 +1,188 @@
+{
+  "mandate": {
+    "mandate_id": "ap-payments",
+    "version": 2,
+    "principal": "Veltrona accounts payable",
+    "agent_id": "gouji",
+    "valid_from": "2026-09-20T09:00:00Z",
+    "valid_until": "2027-10-20T09:00:00Z",
+    "revoked": false,
+    "payees": [
+      {
+        "payee_id": "V-101",
+        "name": "V-101",
+        "account": "SYNTTWTP/000-SYN-7781",
+        "category": "supplier",
+        "verified_via": "onboarding"
+      },
+      {
+        "payee_id": "V-102",
+        "name": "V-102",
+        "account": "DE00SYNB00000000000102",
+        "category": "supplier",
+        "verified_via": "onboarding"
+      },
+      {
+        "payee_id": "V-103",
+        "name": "V-103",
+        "account": "IT00SYNB00000000000103",
+        "category": "supplier",
+        "verified_via": "onboarding"
+      },
+      {
+        "payee_id": "V-104",
+        "name": "V-104",
+        "account": "NL00SYNB00000000104",
+        "category": "supplier",
+        "verified_via": "onboarding"
+      },
+      {
+        "payee_id": "V-105",
+        "name": "V-105",
+        "account": "DE00SYNB00000000000105",
+        "category": "supplier",
+        "verified_via": "onboarding"
+      },
+      {
+        "payee_id": "V-106",
+        "name": "V-106",
+        "account": "FI00SYNB0000000106",
+        "category": "supplier",
+        "verified_via": "onboarding"
+      },
+      {
+        "payee_id": "V-107",
+        "name": "V-107",
+        "account": "ES00SYNB00000000000107",
+        "category": "supplier",
+        "verified_via": "onboarding"
+      },
+      {
+        "payee_id": "V-108",
+        "name": "V-108",
+        "account": "SE00SYNB00000000000108",
+        "category": "supplier",
+        "verified_via": "onboarding"
+      },
+      {
+        "payee_id": "V-109",
+        "name": "V-109",
+        "account": "CZ00SYNB00000000000109",
+        "category": "supplier",
+        "verified_via": "onboarding"
+      },
+      {
+        "payee_id": "V-110",
+        "name": "V-110",
+        "account": "HU00SYNB000000000000000110",
+        "category": "supplier",
+        "verified_via": "onboarding"
+      },
+      {
+        "payee_id": "V-111",
+        "name": "V-111",
+        "account": "IT00SYNB00000000000111",
+        "category": "supplier",
+        "verified_via": "onboarding"
+      },
+      {
+        "payee_id": "V-112",
+        "name": "V-112",
+        "account": "NO00SYNB0000112",
+        "category": "supplier",
+        "verified_via": "onboarding"
+      },
+      {
+        "payee_id": "V-113",
+        "name": "V-113",
+        "account": "AT00SYNB000000000113",
+        "category": "supplier",
+        "verified_via": "onboarding"
+      },
+      {
+        "payee_id": "V-114",
+        "name": "V-114",
+        "account": "FR00SYNB0000000000000000114",
+        "category": "supplier",
+        "verified_via": "onboarding"
+      },
+      {
+        "payee_id": "V-127",
+        "name": "V-127",
+        "account": "EE00SYN00000000000004",
+        "category": "supplier",
+        "verified_via": "onboarding"
+      },
+      {
+        "payee_id": "V-128",
+        "name": "V-128",
+        "account": "MT00SYN00000000000005",
+        "category": "supplier",
+        "verified_via": "onboarding"
+      },
+      {
+        "payee_id": "V-129",
+        "name": "V-129",
+        "account": "LV00SYN00000000000006",
+        "category": "supplier",
+        "verified_via": "onboarding"
+      }
+    ],
+    "clauses": [
+      {
+        "clause_id": "P1",
+        "effect": "allow",
+        "actions": [
+          "pay_invoice"
+        ],
+        "payee_in_registry": true,
+        "payee_categories": null,
+        "currencies": [
+          "EUR"
+        ],
+        "min_amount_minor": null,
+        "max_amount_minor": 25000000,
+        "period_cap_minor": null,
+        "max_count_per_period": null,
+        "period_days": 30,
+        "min_rate_bps": null,
+        "max_rate_bps": null,
+        "min_grade": "verified",
+        "within_consent": null,
+        "trusted_args": [
+          "account"
+        ]
+      },
+      {
+        "clause_id": "P2",
+        "effect": "allow",
+        "actions": [
+          "pay_invoice"
+        ],
+        "payee_in_registry": null,
+        "payee_categories": null,
+        "currencies": [
+          "EUR"
+        ],
+        "min_amount_minor": null,
+        "max_amount_minor": 25000000,
+        "period_cap_minor": null,
+        "max_count_per_period": null,
+        "period_days": 30,
+        "min_rate_bps": null,
+        "max_rate_bps": null,
+        "min_grade": "verified",
+        "within_consent": null,
+        "trusted_args": [
+          "account"
+        ]
+      }
+    ],
+    "default_effect": "ask",
+    "approver": "the AP specialist on duty"
+  },
+  "sha256": "3086c1d774b388827cc3fb390ab523f3a4e54a36f217c721dd7ef53eb038ff80",
+  "signed_by": "controller",
+  "key": "bcdf6089495e4149",
+  "signature": "025c1faaa9a3ab041bddb740b6b178fe85854378c9c3c0c88ee98c61d13769546312e52d6380fffd8b0511c7b231f4967beee6ae36e3ec39fde626031afb5d0f"
+}

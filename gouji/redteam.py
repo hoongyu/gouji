@@ -17,7 +17,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-from gouji.llm import Generator, PROVIDERS, Usage, openai_generator
+from gouji.llm import PROVIDERS, Generator, Usage, openai_generator
 from gouji.world import VENDORS, _Builder, write_world
 
 SEED = 20261024

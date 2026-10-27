@@ -39,7 +39,7 @@ def guard(h: Harness, inv_id: str, now: datetime, gen: Generator | None = None) 
                    "LEFT JOIN {mailbox} m ON m.email_id = i.email_id WHERE i.inv_id = ?", [inv_id])
     r = rows[0] if rows else {"inv_id": inv_id, "notes": "", "email_id": None, "body": ""}
     body = r["body"] or ""
-    intent = "pay_invoice+account_change" if re.search(r"\b(account|remit|bank details)\b", body, re.I) else "pay_invoice"
+    intent = "pay_invoice+account_change" if re.search(r"\b(account|remit|bank details)\b", body, re.IGNORECASE) else "pay_invoice"
     if gen is not None and not any(f.polarity == "red_flag" for f in findings):
         flagged = []
         for table, pk, column, text in (("invoices", r["inv_id"], "notes", r["notes"]),
@@ -126,15 +126,22 @@ REPORTER_SYSTEM = (
     "[F2, F5]. Do not decide; the decision is given. 4 to 7 sentences, plain English, no headings."
 )
 _CITE = re.compile(r"\[(F\d+(?:\s*,\s*F\d+)*)\]")
+# on a held payment, a sentence that reassures (pay, release, verified, safe...) without a negation is dropped:
+# the decision above the brief is the program's, and the model's prose may not argue against it
+_REASSURE = re.compile(r"\b(pay|paid|release[ds]?|approve[ds]?|safe|legitimate|genuine|authentic|verified|"
+                       r"no (?:issue|problem|concern|risk)s?|all checks passed)\b", re.IGNORECASE)
+_NEGATION = re.compile(r"\b(not|no|never|cannot|can't|don't|do not|without|before|until|unless)\b", re.IGNORECASE)
 
 
-def filter_brief(text: str, valid: set[str]) -> tuple[str, int]:
-    """Keep only sentences whose every cited id is a verified finding; count what was dropped."""
+def filter_brief(text: str, valid: set[str], *, hold: bool = False) -> tuple[str, int]:
+    """Keep only sentences whose every cited id is a verified finding (and, on a hold, that do not argue for
+    paying); count what was dropped."""
     sentences = [s.strip() for s in re.split(r"(?<=[.!?])\s+", text.strip()) if s.strip()]
     kept, dropped = [], 0
     for s in sentences:
         ids = [i.strip() for m in _CITE.findall(s) for i in m.split(",")]
-        if ids and all(i in valid for i in ids):
+        reassures = hold and _REASSURE.search(s) and not _NEGATION.search(s)
+        if ids and all(i in valid for i in ids) and not reassures:
             kept.append(s)
         else:
             dropped += 1
@@ -149,7 +156,8 @@ def write_brief(findings: list[Finding], decision: str, recommendation: str, gen
         payload = {"decision": decision, "recommendation": recommendation,
                    "findings": [{"id": f.fid, "polarity": f.polarity, "claim": f.claim} for f in verified]}
         try:
-            text, dropped = filter_brief(gen(REPORTER_SYSTEM, json.dumps(payload, ensure_ascii=False)), valid)
+            text, dropped = filter_brief(gen(REPORTER_SYSTEM, json.dumps(payload, ensure_ascii=False)), valid,
+                                         hold=decision != "allow")
         except Exception as exc:
             return {**_template(lead), "author": f"scripted (model failed: {type(exc).__name__}: {exc})"[:160]}
         if text:

@@ -8,12 +8,23 @@ signed payee registry so the comparison is fair:
 - B3 ("investigated"): the same clause plus a minimum evidence grade, and one more clause that lets
   a payee outside the registry through only when every required aspect is VERIFIED, i.e. two
   independent trusted systems agree and no red flag stands.
+
+PayProof runs on B3, and only from a policy file the controller has signed with an Ed25519 key
+(policy/ap-payments.<set>.json). The controller's public key is all PayProof holds; a policy that is
+missing, unsigned or altered by one character is refused, and nothing is released under it.
 """
 
 from __future__ import annotations
 
+import json
+import os
 from datetime import datetime, timedelta
+from pathlib import Path
 
+from cryptography.hazmat.primitives.asymmetric.ed25519 import (
+    Ed25519PrivateKey,
+    Ed25519PublicKey,
+)
 from engine.facts import ActionFacts
 from engine.grade import Grade
 from engine.history import ActionHistory
@@ -23,6 +34,7 @@ from engine.provenance import ProvenanceLabel, ProvenanceTracker, Trust
 
 from gouji.checks import ASPECTS, Finding
 from gouji.harness import TRUSTED_SYSTEMS
+from gouji.signing import canonical, fingerprint, public_key, sha256, sign, verify
 from gouji.world_model import Alert
 
 ACTION = "pay_invoice"
@@ -47,6 +59,53 @@ def build_mandate(registry_accounts: dict[str, str], now: datetime, *, investiga
         agent_id="gouji", valid_from=now - timedelta(days=30), valid_until=now + timedelta(days=365),
         payees=payees, clauses=clauses, default_effect=Effect.ASK, approver="the AP specialist on duty",
     )
+
+
+class PolicyError(Exception):
+    """The policy is missing, unsigned or altered. Nothing may be released under it."""
+
+
+def policy_path(data_dir: Path) -> Path:
+    return Path(os.environ.get("GOUJI_POLICY", "policy")) / f"ap-payments.{Path(data_dir).name}.json"
+
+
+def policy_document(mandate: Mandate) -> dict:
+    """The mandate as JSON, with its sets sorted so the signed bytes never depend on hash order."""
+    body = mandate.model_dump(mode="json")
+    for clause in body["clauses"]:
+        for k, v in clause.items():
+            if isinstance(v, list):
+                clause[k] = sorted(v)
+    return body
+
+
+def sign_policy(mandate: Mandate, key: Ed25519PrivateKey) -> dict:
+    body = policy_document(mandate)
+    data = canonical(body)
+    return {"mandate": body, "sha256": sha256(data), "signed_by": "controller",
+            "key": fingerprint(key.public_key()), "signature": sign(key, data)}
+
+
+def write_signed_policy(data_dir: Path, key: Ed25519PrivateKey) -> Path:
+    """The controller's act: sign the B3 mandate for a data set and write it to its policy file."""
+    meta = json.loads((Path(data_dir) / "cases.json").read_text(encoding="utf-8"))
+    mandate = build_mandate(meta["registry_accounts"], datetime.fromisoformat(meta["now"]), investigated=True)
+    path = policy_path(data_dir)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(sign_policy(mandate, key), indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    return path
+
+
+def load_policy(path: Path, controller: Ed25519PublicKey | None = None) -> tuple[Mandate, str]:
+    """The mandate in a signed policy file and its hash, if the controller's signature holds."""
+    if not path.exists():
+        raise PolicyError(f"no signed policy at {path}; the controller signs one with: python run.py policy")
+    doc = json.loads(path.read_text(encoding="utf-8"))
+    body = doc.get("mandate")
+    pub = controller or public_key("controller")
+    if not isinstance(body, dict) or not verify(pub, canonical(body), str(doc.get("signature", ""))):
+        raise PolicyError(f"{path}: the controller's signature does not match this policy")
+    return Mandate.model_validate(body), sha256(canonical(body))
 
 
 def grade_evidence(findings: list[Finding], alerts: list[Alert]) -> tuple[dict[str, Grade], dict[str, str]]:

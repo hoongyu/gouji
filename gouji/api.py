@@ -10,7 +10,6 @@
 from __future__ import annotations
 
 import html
-import json
 import os
 import re
 import time
@@ -19,17 +18,14 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
-from engine.audit import AuditLog
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 
-from gouji.contract import PaymentExecutor, signing_key
-from gouji.harness import TABLES, open_harness
+from gouji.harness import TABLES
 from gouji.llm import load_dotenv, openai_generator, sample_mode
-from gouji.pipeline import Context, Trace, investigate
-from gouji.policy import build_mandate
-from gouji.world_model import WorldStoreService
+from gouji.pipeline import Context, Trace, investigate, open_context
+from gouji.signing import fingerprint, public_key
 
 DATA = Path(os.environ.get("GOUJI_DATA", "data/sample"))
 LOGS = Path("logs")
@@ -39,8 +35,10 @@ AGENTS = [
     {"name": "Investigator", "role": "Runs each check as federated SQL where the data lives (Zetaris or DuckDB)"},
     {"name": "Verifier", "role": "Re-reads every cited cell from its source; drops what does not match"},
     {"name": "WorldModel", "role": "Meterless World Model: resolves legal entities, raises doppelganger alerts"},
-    {"name": "Decider", "role": "mandate-engine decides on graded evidence; only ALLOW gets an execution contract"},
-    {"name": "Reporter", "role": "Writes the brief; sentences without verified citations are removed"},
+    {"name": "Decider", "role": "mandate-engine applies the controller-signed policy to graded evidence: ALLOW or ASK"},
+    {"name": "Reporter", "role": "Writes the brief; uncited sentences, and sentences arguing against a hold, are removed"},
+    {"name": "Notary", "role": "No model: re-runs every check itself and signs an execution contract only if it also allows"},
+    {"name": "Gateway", "role": "Holds only the notary's public key; pays only against a valid, unused contract"},
 ]
 
 app = FastAPI(title="PayProof", version="0.1.0")
@@ -49,16 +47,9 @@ app = FastAPI(title="PayProof", version="0.1.0")
 @lru_cache(maxsize=1)
 def _state() -> tuple[Context, dict[str, Any]]:
     load_dotenv()
-    meta = json.loads((DATA / "cases.json").read_text(encoding="utf-8"))
-    now = datetime.fromisoformat(meta["now"])
-    key = signing_key()
-    run = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
-    ctx = Context(harness=open_harness(DATA), store=WorldStoreService(LOGS / f"world-api-{run}.jsonl"),
-                  mandate=build_mandate(meta["registry_accounts"], now, investigated=True),
-                  executor=PaymentExecutor(key, AuditLog(LOGS / f"audit-api-{run}.jsonl")), key=key, now=now,
-                  planner=openai_generator("deepseek"), reporter=openai_generator("deepseek"),
-                  guard=openai_generator("deepseek"))
-    return ctx, meta
+    run = datetime.now(UTC).strftime("api-%Y%m%dT%H%M%SZ")
+    return open_context(DATA, LOGS, run, planner=openai_generator("deepseek"), reporter=openai_generator("deepseek"),
+                        guard=openai_generator("deepseek"), proofs=LOGS / "proofs" / run)
 
 
 _cache: dict[str, dict[str, Any]] = {}
@@ -109,7 +100,8 @@ def run(req: RunRequest) -> dict[str, Any]:
         "run_id": run_id, "status": "success",
         "output": {"summary": f"{r['decision']}: {r['recommendation']}", "decision": r["decision"],
                    "recommendations": [r["recommendation"]], "brief": r["brief"]["text"], "grades": r["grades"],
-                   "alerts": r["alerts"], "contract": r["contract"], "artifacts": [f"/brief/{inv_id}"]},
+                   "alerts": r["alerts"], "notary": r["notary"], "contract": r["contract"],
+                   "proof_file": r["proof_file"], "artifacts": [f"/brief/{inv_id}"]},
         "agents": AGENTS, "trace_id": f"trace-{run_id}", "log_file": f"logs/trace-{run_id}.jsonl",
         "execution_time_seconds": round(time.perf_counter() - t0, 2),
     }
@@ -201,12 +193,13 @@ def brief(inv_id: str) -> HTMLResponse:
     cls, headline, sentence = _verdict(r)
     c = r["contract"]
     if c:
-        decided = (f"Decision <b>ALLOW</b> under clause {html.escape(', '.join(c['matched_clauses']))} of mandate "
-                   f"<code>{html.escape(c['mandate_id'])}</code> v{c['mandate_version']}, not by the model. "
-                   f"Execution contract <code>{html.escape(c['contract_id'])}</code> issued.")
+        decided = (f"Decision <b>ALLOW</b> under clause {html.escape(', '.join(c['matched_clauses']))} of the "
+                   f"controller-signed policy <code>{html.escape(c['mandate_id'])}</code> v{c['mandate_version']}, not "
+                   f"by the model; confirmed by the notary's re-check without a model. Execution contract "
+                   f"<code>{html.escape(c['contract_id'])}</code> issued.")
     else:
-        decided = ("Decision <b>ASK</b>, taken by the signed mandate, not by the model: no clause allows automatic "
-                   "payment, so a person decides. No execution contract was issued.")
+        decided = ("Decision <b>ASK</b>, taken by the controller-signed policy, not by the model: no clause allows "
+                   "automatic payment, so a person decides. No execution contract was issued.")
     body = (f"<p class=small><a href='/'>&larr; All requests</a></p><h1>{html.escape(r['issuer'])}</h1>"
             f"<div class=muted>Invoice {inv_id} &middot; {_eur(r['amount_minor'])}</div>"
             f"<div class='verdict {cls}'><div class=big>{headline}</div><div class=rec>{html.escape(sentence)}</div>"
@@ -240,20 +233,34 @@ def brief(inv_id: str) -> HTMLResponse:
                  f"<td>{_link_ids(r['grade_reasons'].get(aspect, ''))}</td></tr>")
     body += "</table>"
 
-    body += "<h2>Payment system</h2><div class=kv>"
+    ctx, _ = _state()
+    body += "<h2>Proof</h2><div class=kv>"
+    body += (f"<div>Policy</div><div><code>{html.escape(ctx.mandate.mandate_id)}</code> v{ctx.mandate.version}, "
+             f"signed by the controller (Ed25519 key {fingerprint(public_key('controller'))}); "
+             f"sha256 <span class=mono>{html.escape(ctx.policy_sha256[:16])}&hellip;</span></div>")
+    n = r["notary"]
+    if n:
+        body += (f"<div>Notary re-check</div><div>No model: {n['queries']} queries, {len(n['cells'])} cells re-read, "
+                 f"decision {html.escape(n['decision'].upper())}"
+                 + (f"; refused: {html.escape(n['refusal'])}" if n["refusal"] else "") + "</div>")
     if c:
         pay = r["payment"] or {}
-        evidence = ", ".join(f"<a href='#{i}'>{i}</a>" for i in c["evidence_ids"]) or "-"
-        body += (f"<div>Execution contract</div><div><code>{html.escape(c['contract_id'])}</code>, HMAC-signed</div>"
-                 f"<div>Bound to payment</div><div class=mono>{html.escape(c['facts_hash'][:16])}&hellip;</div>"
+        body += (f"<div>Execution contract</div><div><code>{html.escape(c['contract_id'])}</code>, signed by the notary "
+                 f"(Ed25519 key {html.escape(c['notary_key'])})</div>"
+                 f"<div>Bound to</div><div>payment <span class=mono>{html.escape(c['facts_hash'][:12])}</span>, "
+                 f"evidence <span class=mono>{html.escape(c['evidence_root'][:12])}</span> "
+                 f"({c['evidence_cells']} cells), policy <span class=mono>{html.escape(c['policy_sha256'][:12])}</span></div>"
                  f"<div>Valid</div><div>{html.escape(c['issued_at'])} to {html.escape(c['expires_at'])}, single use</div>"
-                 f"<div>Rests on</div><div>{evidence}</div>"
-                 f"<div>Executor</div><div><span class='pill p-ok'>{html.escape(str(pay.get('status', '')))}</span></div>")
+                 f"<div>Gateway</div><div><span class='pill p-ok'>{html.escape(str(pay.get('status', '')))}</span> "
+                 "checked with the notary's public key</div>")
     else:
         probe = r["bypass_probe"] or {}
         body += ("<div>Execution contract</div><div>none</div>"
                  f"<div>Direct pay call</div><div><span class='pill p-red'>{html.escape(str(probe.get('status', 'not tried')))}"
                  f"</span> {html.escape(str(probe.get('reason', '')))}</div>")
+    if r.get("proof_file"):
+        body += (f"<div>Check it yourself</div><div><code>uv run python run.py verify "
+                 f"{html.escape(r['proof_file'])}</code></div>")
     body += "</div>"
 
     body += ("<h2>Findings</h2><p class='small muted'>Every cited cell was re-read from its source system by primary "

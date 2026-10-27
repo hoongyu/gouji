@@ -21,3 +21,16 @@ output_examples/eval-ci-*
 video/input/
 video/out/
 video/samples/
+
+# explainer video: takes, screenshots and renders stay local
+video/explainer/out/
+video/explainer/audio/*.mp3
+video/explainer/assets/
+
+# signing keys: private halves never leave this machine; public halves are committed
+keys/*.key
+keys/notary.pub
+
+# old demo pipeline: screenshots and logs stay local
+video/shots/
+video/compose.log

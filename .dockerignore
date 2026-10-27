@@ -8,3 +8,5 @@ resource/
 .hackertrip/
 **/__pycache__/
 .pytest_cache/
+keys/*.key
+keys/notary.pub
