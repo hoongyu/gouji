@@ -7,15 +7,15 @@ sdk: docker
 app_port: 8000
 pinned: false
 license: mit
-short_description: A pre-payment investigator that can explain why
+short_description: No proof, no payment: a pre-payment checkpoint
 ---
 
 # PayProof: live demo
 
-Before an invoice is paid, PayProof checks across five fictional systems (ERP, vendor master, contracts,
-accounts-payable mailbox, company registry) whether the supplier is who it claims to be. Every sentence of
-its explanation cites a cell a program re-read, a signed mandate (not the model) decides whether money moves,
-and the payment system refuses any payment without a signed execution contract.
+No proof, no payment. Before an invoice is paid, PayProof checks across five fictional systems (ERP, vendor
+master, contracts, accounts-payable mailbox, company registry) whether the supplier is who it claims to be.
+Every sentence of its explanation cites a cell a program re-read, a policy the controller signed (not the model)
+decides, and the payment gateway pays only against a contract signed by a notary that contains no model.
 
 This Space runs in sample mode: DuckDB over the bundled fictional data, scripted planner and reporter, no
 model calls and no keys. Open a payment request to see its one-page brief, or call the API:
