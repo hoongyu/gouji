@@ -93,13 +93,13 @@ def card8() -> None:
     items = [("Zetaris", "every check is federated SQL where the data lives; the Verifier re-reads each cited cell there"),
              ("Meterless", "World Model resolves companies by registration number; one injected generator for every model call; Scout-style execution contract"),
              ("NVIDIA Nemotron", "wrote the sealed red-team set the numbers come from")]
-    y = 280
+    y = 260
     for name, text in items:
         d.text((160, y), name, font=font(BOLD, 44), fill=ACCENT)
         y = block(d, 600, y + 4, text, font(REG, 38), INK, 1160) + 40
-    d.text((160, 840), "PayProof", font=font(BOLD, 96), fill=INK)
-    d.text((160, 965), "An agent that can explain why, and that cannot pay without proof.   github.com/hoongyu/gouji",
-           font=font(REG, 32), fill=MUTED)
+    # kept above y 820: the subtitles sit below that
+    d.text((160, max(y + 20, 690)), "PayProof", font=font(BOLD, 96), fill=INK)
+    d.text((640, max(y + 20, 690) + 42), "github.com/hoongyu/gouji", font=font(REG, 40), fill=MUTED)
     img.save(OUT / "card8.png")
 
 
