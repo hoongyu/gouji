@@ -10,7 +10,7 @@ Open Agent Hackathon 2026 · Track 2: The Agent That Can Explain Why. The code a
 
 Between 2013 and 2015, a man registered a company in Latvia with the same name as an Asian computer-hardware supplier, opened bank accounts in Latvia and Cyprus, and e-mailed two US internet companies, reported to be Google and Facebook, as if he were that supplier. They wired over $120 million to him ([US DOJ, 2019](https://www.justice.gov/usao-sdny/pr/lithuanian-man-sentenced-5-years-prison-theft-over-120-million-fraudulent-business); [WSKG/NPR, 2019](https://www.wskg.org/news/2019-03-25/man-pleads-guilty-in-new-york-to-fleecing-facebook-and-google-of-100-million)). Nothing in the attack was technically clever: the company name matched, and the e-mails looked like the supplier's.
 
-Business e-mail compromise is still the costliest fraud the FBI tracks: 24,768 complaints and $3.05 billion in reported losses in 2025, including over $30 million in BEC scams involving AI ([IC3 2025 report](https://www.ic3.gov/AnnualReport/Reports/2025_IC3Report.pdf), pp. 25, 26, 39).
+Business e-mail compromise is the costliest fraud the FBI tracks after investment fraud: 24,768 complaints and $3.05 billion in reported losses in 2025, including over $30 million in BEC scams involving AI ([IC3 2025 report](https://www.ic3.gov/AnnualReport/Reports/2025_IC3Report.pdf), pp. 3, 25, 26, 39).
 
 Now accounts-payable teams are handing invoice processing to AI agents. An agent is fooled the same way people were, and it adds a new attack surface: text inside the invoice that tells the agent what to do.
 
