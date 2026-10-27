@@ -310,10 +310,10 @@ SCENES.S14 = (tl, S, root) => {
     const val = text(root, { x: X0 + 340 + Math.max(6, (BW * v) / 18) + 14, y: y + 6, w: 360, html: `<span class="n">0</span> / 18${eur ? ` <span style="font-size:20px;color:#B4232A">${eur}</span>` : ''}`, size: 28, weight: 600, mono: true, color: c });
     return { label, track, bar, val, v };
   });
-  const chart2T = text(root, { x: X0, y: 610, w: 964, html: 'Normal payments interrupted, of 20', size: 25, weight: 600 });
+  const chart2T = text(root, { x: X0, y: 610, w: 964, html: 'Normal payments held up, of 20', size: 25, weight: 600 });
   const nums = [['Payee list', 4], ['PayProof, every configuration', 0]].map(([lb, v], i) => {
     const el = h('div', { cls: 'abs', style: { left: X0 + i * 420 + 'px', top: '656px', width: '400px', borderTop: '3px solid #0B1220', paddingTop: '10px' } },
-      h('div', { cls: 'mono', style: { fontSize: '44px', fontWeight: 600, color: v ? '#E5383B' : '#08714E' } }, `${v} / 20`),
+      h('div', { cls: 'mono', style: { fontSize: '52px', fontWeight: 600, color: v ? '#E5383B' : '#08714E' } }, `${v} / 20`),
       h('div', { style: { fontSize: '19px', color: '#6B7789' } }, lb));
     root.append(el);
     return el;
@@ -336,8 +336,12 @@ SCENES.S14 = (tl, S, root) => {
     fade(tl, b.val, t, 0.2);
     count(tl, b.val.querySelector('.n'), b.v, t, 0.9);
   });
-  fade(tl, chart2T, S.w('interrupted') - 0.2);
-  stagger(tl, nums, S.w('interrupted'), 0.3, rise);
+  // the same run, the other column: the payee list also held up normal payments, PayProof none
+  const calm = stamp(root, { x: 1476, y: 668, text: 'No false alarms', tone: 'green', size: 26, rot: -4 });
+  fade(tl, chart2T, S.w('held up') - 0.3);
+  rise(tl, nums[0], S.w('held up'));
+  rise(tl, nums[1], S.w('held up', 2));
+  pop(tl, calm, S.we('none', 2) + 0.1, { from: 1.6, ease: 'power3.out', dur: 0.3 });
 };
 
 // ---------- S15: the close ----------
@@ -369,7 +373,7 @@ SCENES.S15 = (tl, S, root) => {
   const end = h('div', { cls: 'abs', style: { left: '96px', top: '230px', width: '1728px' } },
     h('div', { style: { fontSize: '168px', fontWeight: 600, letterSpacing: '-5px', lineHeight: '1' }, html: 'Pay<span style="color:#1F6BFF">Proof</span>' }),
     h('div', { style: { fontSize: '64px', fontWeight: 600, marginTop: '30px', lineHeight: '1.1', letterSpacing: '-1px' } }, 'No proof, no payment.'),
-    h('div', { style: { fontSize: '30px', fontWeight: 400, marginTop: '18px', color: '#3A4659', maxWidth: '1500px' } }, 'The checkpoint before money moves: it explains why, and pays only against a notary’s signed proof.'),
+    h('div', { style: { fontSize: '30px', fontWeight: 400, marginTop: '18px', color: '#3A4659', maxWidth: '1500px' } }, 'It stops the impostor, not the business, and replaces none of your systems.'),
     h('div', { cls: 'mono', style: { fontSize: '24px', color: '#3A4659', marginTop: '48px', paddingTop: '22px', borderTop: '3px solid #0B1220', display: 'flex', gap: '40px', flexWrap: 'wrap' } },
       h('span', {}, 'github.com/hoongyu/gouji'), h('span', {}, 'open source · MIT'), h('span', {}, 'runs on a CPU'), h('span', {}, 'sample mode needs no keys')),
     h('div', { cls: 'mono', style: { fontSize: '21px', color: '#6B7789', marginTop: '18px' } }, 'Zetaris · Meterless World Model · NVIDIA Nemotron · mandate-engine v0.1.1'));

@@ -1,7 +1,7 @@
 S01: Between 2013 and 2015, a man registered a company in Latvia with the same name as an Asian hardware supplier, and sent invoices to two US internet companies as that supplier. They wired him over a hundred and twenty million dollars. The name matched.
-S02: Now AI agents are starting to pay invoices. They can be fooled the same way, and they add a new weakness: text inside an invoice can talk to the agent.
+S02: Last year alone, victims reported three billion dollars lost to e-mail fraud like his. Now AI agents are starting to pay invoices. They can be fooled the same way, and text inside an invoice can talk to the agent.
 S03: Today's checks would let this through. The payee list has the account. Europe's mandatory name check says match: the impostor registered that very name. PayProof asks who it really is. No proof, no payment.
-S04: Seven agents investigate across five systems and explain why with evidence. None of them can pay. Only a notary with no model can sign a payment, and only the gateway can make it. Let's follow one real request.
+S04: PayProof replaces none of your systems. Its seven agents investigate all five, right where they are, and explain why with evidence. None of them can pay. Only a notary with no model can sign a payment, and only the gateway can make it.
 S05: This invoice from Taivora Electronics asks for nearly fifty thousand euros. Its notes tell the AI to mark the supplier as verified and pay today. The Guard reads it first and quarantines that text: it is data, never an instruction.
 S06: The Investigator never copies data. Zetaris federates every check across the five systems where the data lives: two PostgreSQL databases and three files on S3. This one query joins the ERP, the vendor master and the contracts. The invoice comes from a company in Latvia. The order and the contract point to Taiwan.
 S07: Every finding cites the exact cells behind it. Before anything may use it, the Verifier re-reads each of those cells from its source, through Zetaris. If a cell has changed, the finding is dropped.
@@ -11,5 +11,5 @@ S10: So the model does not decide. A person does, with a one-page brief: hold, l
 S11: Why trust it? First, words cannot move money. We handed the model to the attacker. It denied every injection, skipped every follow-up and argued for paying. Not a single extra payment went out.
 S12: Second, nothing pays without proof. The notary has no model. It runs every check again, under the policy the controller signed, and only then signs a contract bound to this payment and this evidence, for fifteen minutes, once. The gateway holds just its public key.
 S13: Third, anyone can check the proof. One command re-reads every cell through Zetaris and derives the decision again. Ten of ten checks pass.
-S14: On forty-four requests NVIDIA Nemotron wrote, sealed before the first run, a payee list paid nine of eighteen attacks after money. PayProof paid none, even with the model in the attacker's hands, and interrupted none of twenty normal payments.
-S15: Zetaris reads the data where it lives. Meterless's World Model tells who is who. PayProof: no proof, no payment.
+S14: On forty-four requests NVIDIA Nemotron wrote, sealed before the first run, a payee list paid nine of eighteen attacks after money, and still held up four of twenty normal payments. PayProof paid none, even with the model in the attacker's hands, and held up none.
+S15: Zetaris reads the data where it lives. Meterless's World Model tells who is who. PayProof stops the impostor, not the business. No proof, no payment.
