@@ -336,6 +336,10 @@ Limits of the data: the case mix and volumes are design choices for a fictional 
 
 [mandate-engine v0.1.1](https://github.com/hoongyu/mandate-engine) (MIT OR Apache-2.0) evaluates the mandate and keeps the hash-chained audit log the gateway uses as its ledger. It was written before the development period and is declared as an existing component; everything else in this repository was built during the hackathon.
 
+## SafeSpace Hacks 2026
+
+See [`docs/safespace/submission.md`](docs/safespace/submission.md) for the SafeSpace Hacks entry; only two chore commits predate the development period, and everything except mandate-engine was built during it.
+
 ## License
 
 MIT. See [LICENSE](LICENSE). The mandate-engine dependency is dual-licensed MIT OR Apache-2.0.
