@@ -75,7 +75,7 @@ uv run python run.py serve     # http://localhost:8000/
 uv run pytest
 ```
 
-Docker (from the README):
+Docker (sample mode, no keys needed; checked on 2026-11-02):
 
 ```bash
 docker build -t gouji .

@@ -42,6 +42,13 @@ Nothing failed. One shell command (`pkill -f "run.py serve"`) killed my own shel
 
 1. Record the walkthrough video following `walkthrough.md` and put its link into `submission.md` (Links).
 2. Check eligibility and post the entry on Devpost before 2026-11-22 23:00 CET; keep links live until 2026-11-24.
-3. Run the Docker steps once yourself (not tested here).
+3. Docker: done by the owner on 2026-11-02, see "Owner-side Docker check" below.
 4. Confirm that mandate-engine predates 2026-10-17 (its repository history) before relying on the disclosure.
 5. Decide whether to merge `safespace` into `main`. Nothing was merged and no PR was opened.
+
+## Owner-side Docker check (2026-11-02)
+
+Run on the owner's Windows 11 laptop, sample mode, no `.env`:
+
+- `docker build -q -t gouji-safespace-check .` finished in about 590 s.
+- `docker run -d --rm -p 18000:8000 gouji-safespace-check`: `GET /` and `GET /brief/INV-5567` both returned HTTP 200. The container was stopped afterwards.
