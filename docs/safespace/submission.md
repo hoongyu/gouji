@@ -62,6 +62,8 @@ Checked with git on the `safespace` branch: only two commits predate the develop
 
 Credits: held-out set written by NVIDIA Nemotron; the 2019 DOJ case and IC3 report cited in the README.
 
+AI assistance: the code and these docs were written with Claude Code (Anthropic); every commit on this branch carries a Co-Authored-By line for Claude. The demo video was scripted and recorded by Claude Code from the running app and a live terminal; its narration is an AI voice generated with ElevenLabs.
+
 ## Try it
 
 Sample mode, no keys (Python 3.12+ and uv):
